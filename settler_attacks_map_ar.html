@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اعتداءات المستوطنين في الضفة الغربية</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap');
+
+:root {
+  --aa-red: #ED1C24;
+  --aa-dark: #1a1a1a;
+  --aa-darker: #111;
+  --aa-gray: #2a2a2a;
+  --aa-light: #f0f0f0;
+  --aa-white: #ffffff;
+  --aa-gold: #f5a623;
+  --aa-orange: #ff6b35;
+  --type-kill: #ff1744;
+  --type-shoot: #ff5722;
+  --type-beat: #ff9800;
+  --type-steal: #8bc34a;
+  --type-burn: #e91e63;
+  --type-uproot: #795548;
+  --type-settle: #9c27b0;
+  --type-other: #607d8b;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Naskh Arabic', 'Noto Kufi Arabic', sans-serif;
+  background: var(--aa-darker);
+  color: var(--aa-white);
+  overflow: hidden;
+  height: 100vh;
+}
+
+#header {
+  background: linear-gradient(135deg, var(--aa-dark) 0%, #2d0a0a 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--aa-red);
+  z-index: 1000;
+  position: relative;
+}
+
+#header .logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#header .aa-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--aa-red);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  color: white;
+  letter-spacing: -1px;
+}
+
+#header h1 {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--aa-white);
+  line-height: 1.4;
+}
+
+#header .subtitle {
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 400;
+}
+
+#header .date-range {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 11px;
+  color: var(--aa-red);
+  background: rgba(237,28,36,0.1);
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(237,28,36,0.3);
+  font-weight: 600;
+}
+
+#stats-bar {
+  background: var(--aa-dark);
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #333;
+  z-index: 999;
+  position: relative;
+  overflow-x: auto;
+}
+
+.stat-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 14px;
+  text-align: center;
+  border-left: 1px solid #333;
+}
+
+.stat-item:last-child { border-left: none; }
+
+.stat-num {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--aa-red);
+}
+
+.stat-label {
+  font-size: 10px;
+  color: #888;
+  margin-top: 2px;
+}
+
+#map-container {
+  position: relative;
+  height: calc(100vh - 130px);
+}
+
+#map { height: 100%; width: 100%; }
+
+.leaflet-popup-content-wrapper {
+  background: var(--aa-dark) !important;
+  color: var(--aa-white) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--aa-red) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  direction: rtl;
+}
+
+.leaflet-popup-tip { background: var(--aa-dark) !important; }
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  font-family: 'Noto Naskh Arabic', sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.popup-title {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--aa-red);
+  margin-bottom: 4px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 6px;
+}
+
+.popup-region {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.popup-attack {
+  padding: 5px 0;
+  border-bottom: 1px solid #333;
+  font-size: 12px;
+}
+
+.popup-attack:last-child { border-bottom: none; }
+
+.popup-date {
+  color: var(--aa-gold);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.popup-type-tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin: 2px 0 2px 4px;
+  font-weight: 600;
+}
+
+.popup-detail { color: #ccc; font-size: 11px; margin-top: 2px; }
+
+.popup-count {
+  background: var(--aa-red);
+  color: white;
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+#legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(10px);
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #444;
+  z-index: 1000;
+  min-width: 180px;
+  direction: rtl;
+}
+
+#legend h3 {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--aa-white);
+  border-bottom: 1px solid var(--aa-red);
+  padding-bottom: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 11px;
+  color: #ccc;
+}
+
+.legend-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+#size-legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(10px);
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #444;
+  z-index: 1000;
+  direction: rtl;
+}
+
+#size-legend h3 {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--aa-white);
+  border-bottom: 1px solid var(--aa-red);
+  padding-bottom: 6px;
+}
+
+.size-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #ccc;
+}
+
+.size-dot {
+  border-radius: 50%;
+  background: rgba(237,28,36,0.4);
+  border: 2px solid var(--aa-red);
+  flex-shrink: 0;
+}
+
+#source-bar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(26,26,26,0.9);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 10px;
+  color: #888;
+  z-index: 1000;
+  border: 1px solid #444;
+  direction: rtl;
+}
+
+#source-bar span { color: var(--aa-red); font-weight: 700; }
+
+.leaflet-tile-pane { filter: saturate(0.3) brightness(0.7); }
+
+.loc-label {
+  background: rgba(26,26,26,0.92) !important;
+  border: 1px solid var(--aa-red) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6) !important;
+  font-family: 'Noto Kufi Arabic', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  white-space: nowrap !important;
+  padding: 4px 10px !important;
+  direction: rtl !important;
+}
+
+.loc-label::before {
+  border-top-color: var(--aa-red) !important;
+}
+
+.attack-marker {
+  border-radius: 50%;
+  border: 2px solid;
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.attack-marker:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Filter Panel */
+#filter-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(10px);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  direction: rtl;
+}
+
+#filter-panel h4 {
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
+.filter-btn {
+  display: inline-block;
+  padding: 3px 10px;
+  margin: 2px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-family: 'Noto Naskh Arabic', sans-serif;
+  cursor: pointer;
+  border: 1px solid #555;
+  background: transparent;
+  color: #ccc;
+  transition: all 0.2s;
+}
+
+.filter-btn.active {
+  border-color: var(--aa-red);
+  background: rgba(237,28,36,0.15);
+  color: var(--aa-white);
+}
+
+.filter-btn:hover { border-color: var(--aa-red); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #333; }
+::-webkit-scrollbar-thumb { background: var(--aa-red); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo-area">
+    <div class="aa-mark">AA</div>
+    <div>
+      <h1>اعتداءات المستوطنين الإسرائيليين في الضفة الغربية</h1>
+      <div class="subtitle">خريطة تفاعلية — رصد وتوثيق الاعتداءات حسب الموقع والنوع والتكرار</div>
+    </div>
+  </div>
+  <div class="date-range">28 فبراير — 22 مارس 2026</div>
+</div>
+
+<div id="stats-bar">
+  <div class="stat-item"><div class="stat-num" id="s-locations">69</div><div class="stat-label">موقع مستهدف</div></div>
+  <div class="stat-item"><div class="stat-num" id="s-attacks">110+</div><div class="stat-label">حادثة اعتداء</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:#ff1744">7</div><div class="stat-label">شهداء</div></div>
+  <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">مصاب</div></div>
+  <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">تجمعات مهجّرة</div></div>
+  <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">بؤر استيطانية جديدة</div></div>
+</div>
+
+<div id="map-container">
+  <div id="map"></div>
+  
+  <div id="source-bar">المصدر: <span>وكالة الأناضول</span> | بيانات من مصادر فلسطينية رسمية وحقوقية</div>
+  
+  <div id="filter-panel">
+    <h4>تصفية حسب نوع الاعتداء:</h4>
+    <button class="filter-btn active" data-filter="all">الكل</button>
+    <button class="filter-btn" data-filter="kill">قتل</button>
+    <button class="filter-btn" data-filter="shoot">إطلاق نار</button>
+    <button class="filter-btn" data-filter="beat">ضرب / اعتداء</button>
+    <button class="filter-btn" data-filter="burn">حرق</button>
+    <button class="filter-btn" data-filter="steal">سرقة ماشية</button>
+    <button class="filter-btn" data-filter="uproot">اقتلاع أشجار</button>
+    <button class="filter-btn" data-filter="settle">استيطان</button>
+    <button class="filter-btn" data-filter="displace">تهجير</button>
+  </div>
+
+  <div id="legend">
+    <h3>دليل الألوان — نوع الاعتداء</h3>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff1744"></div>قتل / إصابة خطيرة</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff5722"></div>إطلاق نار</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff9800"></div>ضرب واعتداء جسدي</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#e91e63"></div>حرق ممتلكات</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#8bc34a"></div>سرقة ماشية</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#795548"></div>اقتلاع أشجار / تجريف</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#9c27b0"></div>إقامة بؤرة استيطانية</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#2196f3"></div>تهجير قسري</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#607d8b"></div>إغلاق طرق / أخرى</div>
+  </div>
+
+  <div id="size-legend">
+    <h3>حجم الدائرة = عدد الحوادث</h3>
+    <div class="size-row"><div class="size-dot" style="width:12px;height:12px"></div>حادثة واحدة</div>
+    <div class="size-row"><div class="size-dot" style="width:20px;height:20px"></div>2-3 حوادث</div>
+    <div class="size-row"><div class="size-dot" style="width:30px;height:30px"></div>4+ حوادث</div>
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #444;font-size:10px;color:#888">اضغط على النقطة لعرض التفاصيل<br>مرر المؤشر لإظهار الاسم</div>
+  </div>
+</div>
+
+<script>
+const ATTACK_TYPES = {
+  kill: { label: 'قتل', color: '#ff1744', tag: '#5e0009' },
+  shoot: { label: 'إطلاق نار', color: '#ff5722', tag: '#4e1500' },
+  beat: { label: 'ضرب / اعتداء', color: '#ff9800', tag: '#4e2e00' },
+  burn: { label: 'حرق', color: '#e91e63', tag: '#4e0020' },
+  steal: { label: 'سرقة ماشية', color: '#8bc34a', tag: '#1e3a00' },
+  uproot: { label: 'اقتلاع / تجريف', color: '#795548', tag: '#2e1a13' },
+  settle: { label: 'استيطان', color: '#9c27b0', tag: '#3a0045' },
+  displace: { label: 'تهجير', color: '#2196f3', tag: '#002f5e' },
+  kidnap: { label: 'اختطاف / احتجاز', color: '#ff6f00', tag: '#4e2200' },
+  road: { label: 'إغلاق طرق', color: '#607d8b', tag: '#1e2b30' },
+  vandal: { label: 'تخريب ممتلكات', color: '#78909c', tag: '#1e2b30' },
+  other: { label: 'أخرى', color: '#607d8b', tag: '#1e2b30' }
+};
+
+const locations = [
+  // === الأغوار الشمالية ===
+  {name:"الرأس الأحمر",lat:32.375,lng:35.498,region:"الأغوار الشمالية",attacks:[
+    {date:"28/02",types:["beat"],detail:"إصابة 5 فلسطينيين بالضرب ورش غاز الفلفل على رعاة"},
+    {date:"07/03",types:["beat"],detail:"8 إصابات بالضرب المبرح بينهم سيدتان"}
+  ]},
+  {name:"عاطوف",lat:32.348,lng:35.455,region:"الأغوار الشمالية",attacks:[
+    {date:"28/02",types:["beat"],detail:"اعتداء على رعاة ماشية"},
+    {date:"11/03",types:["road","other"],detail:"حصار 30 عائلة (180 شخصاً) وقطع المياه عن 17 ألف رأس ماشية"}
+  ]},
+  {name:"حمامات المالح",lat:32.355,lng:35.518,region:"الأغوار الشمالية",attacks:[
+    {date:"01/03",types:["beat"],detail:"إصابة فلسطيني بجروح"},
+    {date:"09/03",types:["vandal","steal"],detail:"تخريب مساكن وسرقة ماشية ومهاجمة مدرسة"},
+    {date:"11/03",types:["beat"],detail:"اعتداء على نشطاء أجانب ومواطن فلسطيني"}
+  ]},
+  {name:"خربة سمرة",lat:32.365,lng:35.48,region:"الأغوار الشمالية",attacks:[
+    {date:"09/03",types:["other"],detail:"مداهمة خيام مواطنين ليلاً"}
+  ]},
+  {name:"تجمع عين الحلوة",lat:32.395,lng:35.545,region:"الأغوار الشمالية",attacks:[
+    {date:"22/03",types:["beat"],detail:"رش غاز الفلفل على السكان"}
+  ]},
+  {name:"تجمع حمصة البقيعة",lat:32.335,lng:35.55,region:"الأغوار الشمالية",attacks:[
+    {date:"13/03",types:["steal","beat"],detail:"سرقة 300+ رأس أغنام والاعتداء على السكان"}
+  ]},
+  // === شرق طوباس ===
+  {name:"خربة يرزا",lat:32.30,lng:35.45,region:"شرق طوباس",attacks:[
+    {date:"04/03",types:["beat","vandal"],detail:"إصابة 3 فلسطينيين وتخريب خزانات مياه"},
+    {date:"08/03",types:["displace"],detail:"تهجير 11 عائلة (60 شخصاً)"},
+    {date:"11/03",types:["burn"],detail:"حرق مساكن مهجورة (22 منشأة)"}
+  ]},
+  {name:"قرية العقبة",lat:32.332,lng:35.432,region:"شرق طوباس",attacks:[
+    {date:"06/03",types:["steal"],detail:"سرقة 150 رأس ماشية"},
+    {date:"07/03",types:["displace"],detail:"تهجير 6 عائلات بدوية من التجمع المجاور"}
+  ]},
+  {name:"قرية تياسير",lat:32.298,lng:35.382,region:"شرق طوباس",attacks:[
+    {date:"09/03",types:["beat"],detail:"اعتداء على مواطنين"}
+  ]},
+  // === رام الله ===
+  {name:"قرية رمون",lat:31.955,lng:35.282,region:"شرق رام الله",attacks:[
+    {date:"01/03",types:["beat","steal"],detail:"ضرب مواطن وسرقة أغنام"}
+  ]},
+  {name:"بلدة أبو فلاح",lat:31.972,lng:35.278,region:"شمال شرق رام الله",attacks:[
+    {date:"08/03",types:["kill","shoot"],detail:"مقتل 3 فلسطينيين (ثائر وفارع حمايل ومحمد مرة)"},
+    {date:"19/03",types:["burn"],detail:"حرق مركبة واقتحام أطراف القرية"}
+  ]},
+  {name:"ترمسعيا",lat:31.978,lng:35.285,region:"شمال شرق رام الله",attacks:[
+    {date:"08/03",types:["beat"],detail:"مواجهات مع المستوطنين"}
+  ]},
+  {name:"بلدة مخماس",lat:31.868,lng:35.278,region:"شمال رام الله",attacks:[
+    {date:"11/03",types:["beat"],detail:"هجوم بغاز الفلفل على مواطنين"}
+  ]},
+  {name:"منطقة الخلايل / المغير",lat:31.972,lng:35.30,region:"شمال شرق رام الله",attacks:[
+    {date:"15/03",types:["settle"],detail:"إقامة بؤرة استيطانية على موقع عائلة مهجّرة"}
+  ]},
+  {name:"صوفيا بارك (فرخة / قراوة بني زيد)",lat:32.048,lng:35.118,region:"شمال رام الله",attacks:[
+    {date:"19/03",types:["other"],detail:"وفاة مسن (60 عاماً) بنوبة قلبية إثر ترهيب واعتداء لفظي"}
+  ]},
+  // === جنوب نابلس ===
+  {name:"قرية دوما",lat:32.148,lng:35.352,region:"جنوب نابلس",attacks:[
+    {date:"01/03",types:["beat","kidnap"],detail:"اعتداء وإصابة واحتجاز 5 شبان"},
+    {date:"12/03",types:["burn"],detail:"حرق مدخل مسجد وكتابة شعارات عبرية"}
+  ]},
+  {name:"بلدة قريوت",lat:32.128,lng:35.278,region:"جنوب نابلس",attacks:[
+    {date:"02/03",types:["kill","shoot","uproot"],detail:"مقتل الشقيقين محمد وفهيم معمر وإصابة 3 آخرين"},
+    {date:"15/03",types:["road"],detail:"إغلاق طرق وسواتر ترابية وأعلام إسرائيلية"}
+  ]},
+  {name:"تجمع شكاره البدوي",lat:32.118,lng:35.268,region:"جنوب نابلس",attacks:[
+    {date:"07/03",types:["road"],detail:"إغلاق المنطقة وإعلانها منطقة عسكرية"}
+  ]},
+  {name:"جبل العرمة / بيتا",lat:32.138,lng:35.252,region:"جنوب نابلس",attacks:[
+    {date:"08/03",types:["shoot","settle"],detail:"إطلاق نار على مركبة ونصب خيمة استيطانية"},
+    {date:"09/03",types:["beat"],detail:"إصابات برضوض"}
+  ]},
+  {name:"بلدة جماعين",lat:32.132,lng:35.222,region:"جنوب نابلس",attacks:[
+    {date:"09/03",types:["beat"],detail:"إصابة فلسطينيين بالرضوض"}
+  ]},
+  {name:"بلدة عوريف",lat:32.142,lng:35.232,region:"جنوب نابلس",attacks:[
+    {date:"09/03",types:["beat"],detail:"اعتداء على مواطنين"}
+  ]},
+  {name:"قرية جوريش",lat:32.122,lng:35.302,region:"جنوب نابلس",attacks:[
+    {date:"10/03",types:["uproot"],detail:"اقتلاع 200+ شجرة زيتون وتجريف أراضٍ"}
+  ]},
+  {name:"قرية قصرة",lat:32.118,lng:35.272,region:"جنوب نابلس",attacks:[
+    {date:"13/03",types:["beat"],detail:"ضرب مبرح لشاب"},
+    {date:"14/03",types:["kill","shoot"],detail:"مقتل أمير عودة (28 عاماً) وإصابة 3 بالرصاص الحي"}
+  ]},
+  {name:"بلدة بورين",lat:32.158,lng:35.222,region:"جنوب نابلس",attacks:[
+    {date:"22/03",types:["other"],detail:"رشق مركبات بالحجارة"}
+  ]},
+  {name:"قرية جالود",lat:32.122,lng:35.322,region:"جنوب شرق نابلس",attacks:[
+    {date:"22/03",types:["burn","beat"],detail:"حرق مقر المجلس المحلي و4 مركبات و3 إصابات"}
+  ]},
+  // === نابلس مدينة ===
+  {name:"جبل عيبال",lat:32.242,lng:35.268,region:"نابلس",attacks:[
+    {date:"11/03",types:["settle"],detail:"إقامة موقع استيطاني جديد بمشاركة مجلس مستوطنات السامرة"}
+  ]},
+  {name:"قرية عزموط",lat:32.228,lng:35.298,region:"شرق نابلس",attacks:[
+    {date:"07/03",types:["beat"],detail:"اعتداء بالضرب"}
+  ]},
+  {name:"مخيم بلاطة",lat:32.218,lng:35.278,region:"شرق نابلس",attacks:[
+    {date:"07/03",types:["other"],detail:"اعتقالات"}
+  ]},
+  {name:"مخيم عسكر",lat:32.228,lng:35.288,region:"نابلس",attacks:[
+    {date:"03/03",types:["shoot"],detail:"إصابة 5 بالرصاص بينهم طفل — عملية عسكرية"}
+  ]},
+  {name:"حي المخفية",lat:32.218,lng:35.242,region:"غرب نابلس",attacks:[
+    {date:"07/03",types:["other"],detail:"اعتقالات"}
+  ]},
+  {name:"مقام قبر يوسف",lat:32.222,lng:35.28,region:"شرق نابلس",attacks:[
+    {date:"17/03",types:["other"],detail:"اقتحام ومواجهات مع الفلسطينيين"}
+  ]},
+  {name:"خربة المراجم",lat:32.178,lng:35.348,region:"جنوب شرق نابلس",attacks:[
+    {date:"15/03",types:["kidnap"],detail:"احتجاز مجموعة شبان"}
+  ]},
+  // === شمال غرب نابلس ===
+  {name:"بلدة دير شرف",lat:32.248,lng:35.198,region:"شمال غرب نابلس",attacks:[
+    {date:"22/03",types:["burn"],detail:"حرق جرافة وشاحنة ومركبات في مشطب سيارات"}
+  ]},
+  {name:"المسعودية الأثرية",lat:32.258,lng:35.202,region:"شمال غرب نابلس",attacks:[
+    {date:"22/03",types:["burn"],detail:"حرق خيمة سياحية بهجوم 30 مستوطناً ملثماً"}
+  ]},
+  {name:"قرية دير الحطب",lat:32.232,lng:35.31,region:"شرق نابلس",attacks:[
+    {date:"22/03",types:["burn","shoot","beat"],detail:"10 إصابات وحرق منازل ومركبات"}
+  ]},
+  {name:"قرية بيت إمرين",lat:32.268,lng:35.218,region:"شمال غرب نابلس",attacks:[
+    {date:"19/03",types:["beat"],detail:"هجوم على منازل وضرب ورش غاز فلفل"}
+  ]},
+  {name:"عصيرة",lat:32.258,lng:35.278,region:"شمال نابلس",attacks:[
+    {date:"22/03",types:["other"],detail:"رشق مركبات بالحجارة"}
+  ]},
+  // === بيت لحم ===
+  {name:"المالحة / زعترة",lat:31.682,lng:35.222,region:"شرق بيت لحم",attacks:[
+    {date:"01/03",types:["other"],detail:"اقتحام ووضع علم إسرائيلي استفزازي"}
+  ]},
+  {name:"قرية كيسان",lat:31.658,lng:35.248,region:"شرق بيت لحم",attacks:[
+    {date:"14/03",types:["shoot","steal"],detail:"إصابتان بالرصاص الحي وسرقة عشرات الأغنام"}
+  ]},
+  {name:"بلدة تقوع",lat:31.668,lng:35.238,region:"جنوب شرق بيت لحم",attacks:[
+    {date:"22/03",types:["other"],detail:"رشق مركبات بالحجارة"}
+  ]},
+  // === مسافر يطا — جنوب الخليل ===
+  {name:"مسافر يطا / خربة سوسيا",lat:31.392,lng:35.118,region:"جنوب الخليل",attacks:[
+    {date:"01/03",types:["shoot","beat"],detail:"هجوم على منازل وإطلاق نار"},
+    {date:"05/03",types:["beat","shoot"],detail:"إصابة طفلين بالضرب وإطلاق نار"},
+    {date:"09/03",types:["beat"],detail:"رش غاز الفلفل على مواطنين"}
+  ]},
+  {name:"واد أبو شبان",lat:31.382,lng:35.102,region:"مسافر يطا",attacks:[
+    {date:"01/03",types:["beat"],detail:"مطاردة رعاة أغنام"},
+    {date:"18/03",types:["beat","shoot","kidnap"],detail:"إصابة 4 واختطاف 3 فلسطينيين وإطلاق نار"}
+  ]},
+  {name:"خربة جنبا",lat:32.382,lng:35.082,region:"مسافر يطا",attacks:[
+    {date:"03/03",types:["beat"],detail:"اعتداء على رعاة أغنام بقنابل صوت"}
+  ]},
+  {name:"واد الرخيم",lat:31.398,lng:35.138,region:"مسافر يطا",attacks:[
+    {date:"07/03",types:["kill","shoot"],detail:"مقتل أمير شناران (28 عاماً) وإصابة شقيقه و5 آخرين"}
+  ]},
+  {name:"منطقة حوارة (مسافر يطا)",lat:31.388,lng:35.112,region:"مسافر يطا",attacks:[
+    {date:"09/03",types:["beat"],detail:"رش غاز فلفل وإصابة مواطنين"},
+    {date:"21/03",types:["beat"],detail:"اعتداء وإصابات ونقل مصابين للمستشفى"}
+  ]},
+  {name:"قرية الحلاوة",lat:31.372,lng:35.092,region:"مسافر يطا",attacks:[
+    {date:"11/03",types:["burn"],detail:"حرق غرفة سكنية وقت الإفطار في رمضان"}
+  ]},
+  {name:"خربة أم الخير",lat:31.378,lng:35.148,region:"مسافر يطا",attacks:[
+    {date:"13/03",types:["other"],detail:"دهس طفلة (6 سنوات) بمركبة مستوطن"}
+  ]},
+  {name:"خربة الركيز",lat:31.388,lng:35.128,region:"مسافر يطا",attacks:[
+    {date:"15/03",types:["beat"],detail:"اعتداء على مسن وإصابته في الرأس"}
+  ]},
+  {name:"خربة المفقرة",lat:31.385,lng:35.108,region:"مسافر يطا",attacks:[
+    {date:"21/03",types:["beat","kidnap"],detail:"احتجاز مسن ومتضامن أجنبي لساعات"}
+  ]},
+  // === الخليل ===
+  {name:"حمروش / بلدة سعير",lat:31.578,lng:35.098,region:"شمال شرق الخليل",attacks:[
+    {date:"03/03",types:["shoot","beat"],detail:"هجوم على منازل وإطلاق نار"},
+    {date:"03/03",types:["shoot"],detail:"إصابة فلسطينيين بالرصاص"},
+    {date:"09/03",types:["beat"],detail:"اعتداء على عائلة الشلالدة"},
+    {date:"13/03",types:["shoot"],detail:"إطلاق نار على منازل ومواطنين"},
+    {date:"22/03",types:["beat"],detail:"هجوم على منازل"}
+  ]},
+  {name:"وادي سعير",lat:31.562,lng:35.082,region:"بين الخليل وبيت لحم",attacks:[
+    {date:"11/03",types:["road"],detail:"إغلاق طريق يربط الخليل ببيت لحم بالحجارة"}
+  ]},
+  {name:"قرب مستوطنة كرمي تسور",lat:31.568,lng:35.098,region:"شمال الخليل",attacks:[
+    {date:"07/03",types:["shoot"],detail:"إصابة شاب بالرصاص"}
+  ]},
+  {name:"جبل الشيخ / البادية الشرقية",lat:31.352,lng:35.198,region:"جنوب شرق الخليل",attacks:[
+    {date:"11/03",types:["settle"],detail:"نصب خيمة لبؤرة استيطانية"}
+  ]},
+  {name:"بلدة حلحول",lat:31.582,lng:35.082,region:"شمال الخليل",attacks:[
+    {date:"22/03",types:["beat"],detail:"هجوم على منزل"}
+  ]},
+  // === أريحا ===
+  {name:"تجمع حلق الرمان",lat:31.898,lng:35.398,region:"شمال غرب أريحا",attacks:[
+    {date:"04/03",types:["beat"],detail:"إصابة 4 متطوعين بجروح متوسطة وخطيرة"}
+  ]},
+  // === القدس ===
+  {name:"منطقة E1",lat:31.778,lng:35.268,region:"شرق القدس",attacks:[
+    {date:"07/03",types:["settle"],detail:"14 تجمعاً بدوياً مهدداً بالتهجير — مخطط استيطاني"}
+  ]},
+  {name:"قرية بيت إكسا",lat:31.808,lng:35.178,region:"شمال غرب القدس",attacks:[
+    {date:"11/03",types:["settle","uproot"],detail:"40 مستوطناً يجرفون أراضي لإقامة بؤرة استيطانية"}
+  ]},
+  // === جنين ===
+  {name:"بلدة عرابة",lat:32.408,lng:35.218,region:"جنوب غرب جنين",attacks:[
+    {date:"13/03",types:["uproot"],detail:"مصادرة 128 دونماً من الأراضي"}
+  ]},
+  {name:"قرية الفندقومية",lat:32.418,lng:35.268,region:"جنوب جنين",attacks:[
+    {date:"22/03",types:["burn"],detail:"حرق منازل ومركبات وتحطيم نوافذ"}
+  ]},
+  {name:"بلدة سيلة الظهر",lat:32.418,lng:35.242,region:"جنوب غرب جنين",attacks:[
+    {date:"22/03",types:["beat","burn"],detail:"ضرب مواطن ومحاولة حرق منزله"}
+  ]},
+  {name:"تجمع أمريحة",lat:32.398,lng:35.242,region:"جنوب غرب جنين",attacks:[
+    {date:"22/03",types:["other"],detail:"اقتحام التجمع"}
+  ]},
+  {name:"بلدة جبع",lat:32.438,lng:35.298,region:"جنوب جنين",attacks:[
+    {date:"22/03",types:["other"],detail:"اقتحام أطراف البلدة"}
+  ]},
+  // === سلفيت ===
+  {name:"قراوة بني حسان / خربة شحادة",lat:32.078,lng:35.118,region:"غرب سلفيت",attacks:[
+    {date:"16/03",types:["beat","steal"],detail:"ضرب راعٍ (55 عاماً) ومحاولة سرقة أغنام"}
+  ]},
+  {name:"بلدة بروقين",lat:32.068,lng:35.098,region:"سلفيت",attacks:[
+    {date:"22/03",types:["other"],detail:"3 إصابات برضوض جراء رشق مركبة بالحجارة"}
+  ]},
+  {name:"عزبة مغر الأسمر / دير استيا",lat:32.118,lng:35.148,region:"شمال غرب سلفيت",attacks:[
+    {date:"21/03",types:["beat","steal"],detail:"هجوم على رعاة واعتقال أحدهم وإطلاق كلاب على الأغنام"}
+  ]},
+  // === قلقيلية ===
+  {name:"كفر قدوم",lat:32.188,lng:35.098,region:"شرق قلقيلية",attacks:[
+    {date:"12/03",types:["kidnap","beat"],detail:"اختطاف شاب واعتداء بالضرب وكسور"}
+  ]},
+  {name:"قرب مستوطنة قدوميم",lat:32.178,lng:35.102,region:"قلقيلية",attacks:[
+    {date:"22/03",types:["other"],detail:"رشق مركبات بالحجارة"}
+  ]},
+  {name:"قرية حارس",lat:32.098,lng:35.128,region:"غرب سلفيت",attacks:[
+    {date:"22/03",types:["other"],detail:"رشق مركبات بالحجارة"}
+  ]}
+];
+
+// Fix khirbet jinba coordinates
+locations.find(l => l.name === "خربة جنبا").lat = 31.382;
+locations.find(l => l.name === "خربة جنبا").lng = 35.082;
+
+// Initialize map
+const map = L.map('map', {
+  center: [31.95, 35.22],
+  zoom: 9,
+  zoomControl: false
+});
+
+L.control.zoom({ position: 'topleft' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 18
+}).addTo(map);
+
+// West Bank approximate boundary
+const wbBorder = [
+  [32.55,35.0],[32.55,35.6],[32.1,35.6],[31.3,35.5],[31.3,35.0],[31.5,34.9],[32.0,35.0],[32.55,35.0]
+];
+L.polyline(wbBorder, { color: '#ED1C24', weight: 1.5, opacity: 0.3, dashArray: '8,6' }).addTo(map);
+
+// Get dominant attack type for coloring
+function getDominantType(attacks) {
+  const priority = ['kill','shoot','burn','beat','kidnap','steal','displace','settle','uproot','road','vandal','other'];
+  for (const p of priority) {
+    for (const a of attacks) {
+      if (a.types.includes(p)) return p;
+    }
+  }
+  return 'other';
+}
+
+// Create markers
+let allMarkers = [];
+
+locations.forEach(loc => {
+  const count = loc.attacks.length;
+  const radius = count === 1 ? 7 : count <= 3 ? 11 : 16;
+  const dominant = getDominantType(loc.attacks);
+  const color = ATTACK_TYPES[dominant]?.color || '#607d8b';
+  
+  // Build popup content
+  let popupHTML = `<div class="popup-title">${loc.name}</div>`;
+  popupHTML += `<div class="popup-region">${loc.region} <span class="popup-count">${count} حادثة</span></div>`;
+  
+  loc.attacks.forEach(a => {
+    popupHTML += `<div class="popup-attack">`;
+    popupHTML += `<span class="popup-date">${a.date}/2026</span> `;
+    a.types.forEach(t => {
+      const info = ATTACK_TYPES[t] || ATTACK_TYPES.other;
+      popupHTML += `<span class="popup-type-tag" style="background:${info.tag};color:${info.color};border:1px solid ${info.color}">${info.label}</span>`;
+    });
+    popupHTML += `<div class="popup-detail">${a.detail}</div>`;
+    popupHTML += `</div>`;
+  });
+  
+  const marker = L.circleMarker([loc.lat, loc.lng], {
+    radius: radius,
+    fillColor: color,
+    color: color,
+    weight: 2,
+    opacity: 0.9,
+    fillOpacity: 0.4,
+    className: 'attack-marker'
+  }).addTo(map);
+  
+  marker.bindPopup(popupHTML, { maxWidth: 320, minWidth: 220 });
+  
+  // Add permanent label with location name + count
+  const labelText = count > 1 ? `${loc.name} (${count})` : loc.name;
+  const isHighPriority = dominant === 'kill' || dominant === 'displace' || count >= 3;
+  
+  // Show name on hover only (not permanent)
+  marker.bindTooltip(labelText, {
+    permanent: false,
+    direction: 'top',
+    offset: [0, -radius - 2],
+    className: 'loc-label'
+  });
+  
+  // Pulse effect for kill locations
+  if (dominant === 'kill') {
+    L.circleMarker([loc.lat, loc.lng], {
+      radius: radius + 6,
+      fillColor: '#ff1744',
+      color: '#ff1744',
+      weight: 1,
+      opacity: 0.3,
+      fillOpacity: 0.1
+    }).addTo(map);
+  }
+  
+  // Store data for filtering
+  const allTypes = [];
+  loc.attacks.forEach(a => a.types.forEach(t => { if (!allTypes.includes(t)) allTypes.push(t); }));
+  
+  allMarkers.push({ marker, loc, allTypes, dominant });
+});
+
+// Filter functionality
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    
+    allMarkers.forEach(({ marker, allTypes }) => {
+      if (filter === 'all' || allTypes.includes(filter)) {
+        marker.setStyle({ opacity: 0.9, fillOpacity: 0.4 });
+      } else {
+        marker.setStyle({ opacity: 0.1, fillOpacity: 0.05 });
+      }
+    });
+  });
+});
+
+// Region labels
+const regions = [
+  { name: "الأغوار الشمالية", lat: 32.42, lng: 35.52 },
+  { name: "نابلس", lat: 32.24, lng: 35.18 },
+  { name: "رام الله", lat: 31.92, lng: 35.15 },
+  { name: "الخليل", lat: 31.53, lng: 34.98 },
+  { name: "بيت لحم", lat: 31.70, lng: 35.15 },
+  { name: "مسافر يطا", lat: 31.35, lng: 35.05 },
+  { name: "جنين", lat: 32.46, lng: 35.20 },
+  { name: "القدس", lat: 31.78, lng: 35.15 },
+  { name: "طوباس", lat: 32.32, lng: 35.36 }
+];
+
+regions.forEach(r => {
+  L.marker([r.lat, r.lng], {
+    icon: L.divIcon({
+      className: 'region-label',
+      html: `<div style="color:#666;font-size:11px;font-family:'Noto Kufi Arabic';font-weight:700;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,0.8)">${r.name}</div>`,
+      iconSize: [100, 20],
+      iconAnchor: [50, 10]
+    })
+  }).addTo(map);
+});
+</script>
+</body>
+</html>

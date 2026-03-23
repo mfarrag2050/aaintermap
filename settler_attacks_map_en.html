@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Israeli Settler Attacks in the Occupied West Bank</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --aa-red: #ED1C24;
+  --aa-dark: #1a1a1a;
+  --aa-darker: #111;
+  --aa-white: #ffffff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--aa-darker);
+  color: var(--aa-white);
+  overflow: hidden;
+  height: 100vh;
+}
+
+#header {
+  background: linear-gradient(135deg, var(--aa-dark) 0%, #2d0a0a 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--aa-red);
+  z-index: 1000;
+  position: relative;
+}
+
+#header .logo-area { display: flex; align-items: center; gap: 12px; }
+
+#header .aa-mark {
+  width: 36px; height: 36px;
+  background: var(--aa-red); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900; font-size: 14px; color: white;
+}
+
+#header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--aa-white); line-height: 1.4;
+}
+
+#header .subtitle { font-size: 12px; color: #aaa; font-weight: 400; }
+
+#header .date-range {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px; color: var(--aa-red);
+  background: rgba(237,28,36,0.1);
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid rgba(237,28,36,0.3); font-weight: 600;
+}
+
+#stats-bar {
+  background: var(--aa-dark);
+  display: flex; gap: 0;
+  border-bottom: 1px solid #333;
+  z-index: 999; position: relative; overflow-x: auto;
+}
+
+.stat-item {
+  flex: 1; min-width: 100px;
+  padding: 10px 14px; text-align: center;
+  border-right: 1px solid #333;
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 900; color: var(--aa-red);
+}
+
+.stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+
+#map-container { position: relative; height: calc(100vh - 130px); }
+#map { height: 100%; width: 100%; }
+
+.leaflet-popup-content-wrapper {
+  background: var(--aa-dark) !important;
+  color: var(--aa-white) !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--aa-red) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-tip { background: var(--aa-dark) !important; }
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important; line-height: 1.6 !important;
+  max-height: 280px; overflow-y: auto;
+}
+
+.popup-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--aa-red);
+  margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 6px;
+}
+.popup-region { font-size: 11px; color: #999; margin-bottom: 8px; }
+.popup-attack { padding: 5px 0; border-bottom: 1px solid #333; font-size: 12px; }
+.popup-attack:last-child { border-bottom: none; }
+.popup-date { color: #f5a623; font-size: 11px; font-weight: 600; }
+
+.popup-type-tag {
+  display: inline-block; font-size: 10px;
+  padding: 1px 6px; border-radius: 3px;
+  margin: 2px 4px 2px 0; font-weight: 600;
+}
+.popup-detail { color: #ccc; font-size: 11px; margin-top: 2px; }
+
+.popup-count {
+  background: var(--aa-red); color: white;
+  display: inline-block; padding: 2px 8px;
+  border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 6px;
+}
+
+#legend {
+  position: absolute; bottom: 20px; left: 20px;
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(10px);
+  padding: 14px 16px; border-radius: 10px;
+  border: 1px solid #444; z-index: 1000; min-width: 190px;
+}
+#legend h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700; margin-bottom: 10px;
+  color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 6px;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 11px; color: #ccc; }
+.legend-circle { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+#size-legend {
+  position: absolute; bottom: 20px; right: 20px;
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(10px);
+  padding: 14px 16px; border-radius: 10px;
+  border: 1px solid #444; z-index: 1000;
+}
+#size-legend h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700; margin-bottom: 10px;
+  color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 6px;
+}
+.size-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 11px; color: #ccc; }
+.size-dot { border-radius: 50%; background: rgba(237,28,36,0.4); border: 2px solid var(--aa-red); flex-shrink: 0; }
+
+#source-bar {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(26,26,26,0.9); padding: 8px 14px;
+  border-radius: 6px; font-size: 10px; color: #888;
+  z-index: 1000; border: 1px solid #444;
+}
+#source-bar span { color: var(--aa-red); font-weight: 700; }
+
+.leaflet-tile-pane { filter: saturate(0.3) brightness(0.7); }
+
+.loc-label {
+  background: rgba(26,26,26,0.92) !important;
+  border: 1px solid var(--aa-red) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  color: #fff !important; white-space: nowrap !important;
+  padding: 4px 10px !important;
+}
+.loc-label::before { border-top-color: var(--aa-red) !important; }
+
+.attack-marker { border-radius: 50%; border: 2px solid; opacity: 0.85; transition: opacity 0.2s, transform 0.2s; }
+.attack-marker:hover { opacity: 1; transform: scale(1.2); }
+
+#filter-panel {
+  position: absolute; top: 10px; left: 10px;
+  z-index: 1000; background: rgba(26,26,26,0.95);
+  backdrop-filter: blur(10px); padding: 10px 14px;
+  border-radius: 8px; border: 1px solid #444;
+}
+#filter-panel h4 { font-family: 'Space Grotesk', sans-serif; font-size: 11px; color: #aaa; margin-bottom: 6px; }
+
+.filter-btn {
+  display: inline-block; padding: 3px 10px; margin: 2px;
+  border-radius: 12px; font-size: 10px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  border: 1px solid #555; background: transparent; color: #ccc; transition: all 0.2s;
+}
+.filter-btn.active { border-color: var(--aa-red); background: rgba(237,28,36,0.15); color: var(--aa-white); }
+.filter-btn:hover { border-color: var(--aa-red); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #333; }
+::-webkit-scrollbar-thumb { background: var(--aa-red); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo-area">
+    <div class="aa-mark">AA</div>
+    <div>
+      <h1>Israeli Settler Attacks in the Occupied West Bank</h1>
+      <div class="subtitle">Interactive Map — Documenting attacks by location, type, and frequency</div>
+    </div>
+  </div>
+  <div class="date-range">Feb 28 — Mar 22, 2026</div>
+</div>
+
+<div id="stats-bar">
+  <div class="stat-item"><div class="stat-num">69</div><div class="stat-label">Targeted Locations</div></div>
+  <div class="stat-item"><div class="stat-num">110+</div><div class="stat-label">Attack Incidents</div></div>
+  <div class="stat-item"><div class="stat-num" style="color:#ff1744">7</div><div class="stat-label">Palestinians Killed</div></div>
+  <div class="stat-item"><div class="stat-num">50+</div><div class="stat-label">Injured</div></div>
+  <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Communities Displaced</div></div>
+  <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">New Settlement Outposts</div></div>
+</div>
+
+<div id="map-container">
+  <div id="map"></div>
+  
+  <div id="source-bar">Source: <span>Anadolu Agency</span> | Data from official Palestinian & human rights sources</div>
+  
+  <div id="filter-panel">
+    <h4>Filter by attack type:</h4>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="kill">Killing</button>
+    <button class="filter-btn" data-filter="shoot">Shooting</button>
+    <button class="filter-btn" data-filter="beat">Assault</button>
+    <button class="filter-btn" data-filter="burn">Arson</button>
+    <button class="filter-btn" data-filter="steal">Livestock theft</button>
+    <button class="filter-btn" data-filter="uproot">Uprooting</button>
+    <button class="filter-btn" data-filter="settle">Settlement</button>
+    <button class="filter-btn" data-filter="displace">Displacement</button>
+  </div>
+
+  <div id="legend">
+    <h3>Color Key — Attack Type</h3>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff1744"></div>Killing / Critical injury</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff5722"></div>Shooting / Live fire</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff9800"></div>Physical assault</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#e91e63"></div>Arson / Property burning</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#8bc34a"></div>Livestock theft</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#795548"></div>Tree uprooting / Land razing</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#9c27b0"></div>Settlement outpost</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#2196f3"></div>Forced displacement</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#607d8b"></div>Road closure / Other</div>
+  </div>
+
+  <div id="size-legend">
+    <h3>Circle Size = No. of Incidents</h3>
+    <div class="size-row"><div class="size-dot" style="width:12px;height:12px"></div>1 incident</div>
+    <div class="size-row"><div class="size-dot" style="width:20px;height:20px"></div>2–3 incidents</div>
+    <div class="size-row"><div class="size-dot" style="width:30px;height:30px"></div>4+ incidents</div>
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #444;font-size:10px;color:#888">Click a marker for details<br>Hover to see the name</div>
+  </div>
+</div>
+
+<script>
+const ATTACK_TYPES = {
+  kill: { label: 'Killing', color: '#ff1744', tag: '#5e0009' },
+  shoot: { label: 'Shooting', color: '#ff5722', tag: '#4e1500' },
+  beat: { label: 'Assault', color: '#ff9800', tag: '#4e2e00' },
+  burn: { label: 'Arson', color: '#e91e63', tag: '#4e0020' },
+  steal: { label: 'Livestock theft', color: '#8bc34a', tag: '#1e3a00' },
+  uproot: { label: 'Uprooting', color: '#795548', tag: '#2e1a13' },
+  settle: { label: 'Settlement', color: '#9c27b0', tag: '#3a0045' },
+  displace: { label: 'Displacement', color: '#2196f3', tag: '#002f5e' },
+  kidnap: { label: 'Abduction', color: '#ff6f00', tag: '#4e2200' },
+  road: { label: 'Road closure', color: '#607d8b', tag: '#1e2b30' },
+  vandal: { label: 'Vandalism', color: '#78909c', tag: '#1e2b30' },
+  other: { label: 'Other', color: '#607d8b', tag: '#1e2b30' }
+};
+
+const locations = [
+  // === Northern Jordan Valley ===
+  {name:"Al-Ras al-Ahmar",lat:32.375,lng:35.498,region:"Northern Jordan Valley",attacks:[
+    {date:"Feb 28",types:["beat"],detail:"5 Palestinians beaten, pepper spray used on shepherds"},
+    {date:"Mar 7",types:["beat"],detail:"8 injured including 2 women, severe beatings"}
+  ]},
+  {name:"Atouf",lat:32.348,lng:35.455,region:"Northern Jordan Valley",attacks:[
+    {date:"Feb 28",types:["beat"],detail:"Shepherds attacked"},
+    {date:"Mar 11",types:["road","other"],detail:"30 families (180 people) besieged, water cut off for 17,000 livestock"}
+  ]},
+  {name:"Hammamat al-Malih",lat:32.355,lng:35.518,region:"Northern Jordan Valley",attacks:[
+    {date:"Mar 1",types:["beat"],detail:"1 Palestinian injured"},
+    {date:"Mar 9",types:["vandal","steal"],detail:"Homes vandalized, livestock stolen, school attacked"},
+    {date:"Mar 11",types:["beat"],detail:"Foreign activists and a Palestinian attacked"}
+  ]},
+  {name:"Khirbet Samra",lat:32.365,lng:35.48,region:"Northern Jordan Valley",attacks:[
+    {date:"Mar 9",types:["other"],detail:"Night raid on residents' tents"}
+  ]},
+  {name:"Ein al-Hilwa",lat:32.395,lng:35.545,region:"Northern Jordan Valley",attacks:[
+    {date:"Mar 22",types:["beat"],detail:"Residents pepper-sprayed"}
+  ]},
+  {name:"Humsa al-Bqai'a",lat:32.335,lng:35.55,region:"Northern Jordan Valley",attacks:[
+    {date:"Mar 13",types:["steal","beat"],detail:"300+ sheep stolen, residents assaulted"}
+  ]},
+  // === East of Tubas ===
+  {name:"Khirbet Yarza",lat:32.30,lng:35.45,region:"East of Tubas",attacks:[
+    {date:"Mar 4",types:["beat","vandal"],detail:"3 Palestinians injured, water tanks destroyed"},
+    {date:"Mar 8",types:["displace"],detail:"11 families (60 people) forcibly displaced"},
+    {date:"Mar 11",types:["burn"],detail:"Abandoned homes burned (22 structures)"}
+  ]},
+  {name:"Al-Aqaba village",lat:32.332,lng:35.432,region:"East of Tubas",attacks:[
+    {date:"Mar 6",types:["steal"],detail:"150 livestock stolen"},
+    {date:"Mar 7",types:["displace"],detail:"6 Bedouin families forced to leave"}
+  ]},
+  {name:"Tayseer village",lat:32.298,lng:35.382,region:"East of Tubas",attacks:[
+    {date:"Mar 9",types:["beat"],detail:"Residents assaulted"}
+  ]},
+  // === Ramallah area ===
+  {name:"Rammun village",lat:31.955,lng:35.282,region:"East of Ramallah",attacks:[
+    {date:"Mar 1",types:["beat","steal"],detail:"Man beaten, sheep stolen"}
+  ]},
+  {name:"Abu Falah",lat:31.972,lng:35.278,region:"NE Ramallah",attacks:[
+    {date:"Mar 8",types:["kill","shoot"],detail:"3 Palestinians killed (Tha'er & Fare' Hamayel, Mohammad Murra)"},
+    {date:"Mar 19",types:["burn"],detail:"Vehicle set on fire, village outskirts stormed"}
+  ]},
+  {name:"Turmus'ayya",lat:31.978,lng:35.285,region:"NE Ramallah",attacks:[
+    {date:"Mar 8",types:["beat"],detail:"Clashes with settlers"}
+  ]},
+  {name:"Mikhmas",lat:31.868,lng:35.278,region:"North of Ramallah",attacks:[
+    {date:"Mar 11",types:["beat"],detail:"Pepper spray attack on residents"}
+  ]},
+  {name:"Al-Khalayel / Al-Mughayyir",lat:31.972,lng:35.30,region:"NE Ramallah",attacks:[
+    {date:"Mar 15",types:["settle"],detail:"Settlement outpost erected on displaced family's land"}
+  ]},
+  {name:"Sofia Park (Farkhah / Qarawat Bani Zeid)",lat:32.048,lng:35.118,region:"North of Ramallah",attacks:[
+    {date:"Mar 19",types:["other"],detail:"60-year-old guard died of heart attack after verbal intimidation"}
+  ]},
+  // === South of Nablus ===
+  {name:"Duma village",lat:32.148,lng:35.352,region:"South of Nablus",attacks:[
+    {date:"Mar 1",types:["beat","kidnap"],detail:"1 injured, 5 youth detained"},
+    {date:"Mar 12",types:["burn"],detail:"Mosque entrance set on fire, Hebrew slogans sprayed"}
+  ]},
+  {name:"Qaryut",lat:32.128,lng:35.278,region:"South of Nablus",attacks:[
+    {date:"Mar 2",types:["kill","shoot","uproot"],detail:"Brothers Mohammad & Fahim Muammar killed, 3 wounded"},
+    {date:"Mar 15",types:["road"],detail:"Roads blocked with earthen barriers, Israeli flags placed"}
+  ]},
+  {name:"Shkara Bedouin community",lat:32.118,lng:35.268,region:"South of Nablus",attacks:[
+    {date:"Mar 7",types:["road"],detail:"Area closed and declared military zone"}
+  ]},
+  {name:"Jabal al-Arma / Beita",lat:32.138,lng:35.252,region:"South of Nablus",attacks:[
+    {date:"Mar 8",types:["shoot","settle"],detail:"Vehicle shot at, settlement tent erected"},
+    {date:"Mar 9",types:["beat"],detail:"Injuries from assaults"}
+  ]},
+  {name:"Jamma'in",lat:32.132,lng:35.222,region:"South of Nablus",attacks:[
+    {date:"Mar 9",types:["beat"],detail:"Palestinians beaten"}
+  ]},
+  {name:"Urif",lat:32.142,lng:35.232,region:"South of Nablus",attacks:[
+    {date:"Mar 9",types:["beat"],detail:"Residents assaulted"}
+  ]},
+  {name:"Jurish village",lat:32.122,lng:35.302,region:"South of Nablus",attacks:[
+    {date:"Mar 10",types:["uproot"],detail:"200+ olive trees uprooted, land razed by bulldozers"}
+  ]},
+  {name:"Qusra",lat:32.118,lng:35.272,region:"South of Nablus",attacks:[
+    {date:"Mar 13",types:["beat"],detail:"Young man severely beaten"},
+    {date:"Mar 14",types:["kill","shoot"],detail:"Ameer Odeh (28) killed, 3 shot with live ammunition"}
+  ]},
+  {name:"Burin",lat:32.158,lng:35.222,region:"South of Nablus",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Vehicles stoned"}
+  ]},
+  {name:"Jalud",lat:32.122,lng:35.322,region:"SE Nablus",attacks:[
+    {date:"Mar 22",types:["burn","beat"],detail:"Local council building burned, 4 vehicles torched, 3 injured"}
+  ]},
+  // === Nablus city area ===
+  {name:"Mount Ebal (Jabal Ebal)",lat:32.242,lng:35.268,region:"Nablus",attacks:[
+    {date:"Mar 11",types:["settle"],detail:"New settlement outpost established with Samaria Council"}
+  ]},
+  {name:"Azmut village",lat:32.228,lng:35.298,region:"East of Nablus",attacks:[
+    {date:"Mar 7",types:["beat"],detail:"Man beaten"}
+  ]},
+  {name:"Balata Camp",lat:32.218,lng:35.278,region:"East of Nablus",attacks:[
+    {date:"Mar 7",types:["other"],detail:"Arrests during raids"}
+  ]},
+  {name:"Askar Camp",lat:32.228,lng:35.288,region:"Nablus",attacks:[
+    {date:"Mar 3",types:["shoot"],detail:"5 shot including a child — military operation"}
+  ]},
+  {name:"Al-Makhfiya",lat:32.218,lng:35.242,region:"West Nablus",attacks:[
+    {date:"Mar 7",types:["other"],detail:"Arrests"}
+  ]},
+  {name:"Joseph's Tomb",lat:32.222,lng:35.28,region:"East of Nablus",attacks:[
+    {date:"Mar 17",types:["other"],detail:"Settler incursion, clashes with Palestinians"}
+  ]},
+  {name:"Khirbet al-Marajim",lat:32.178,lng:35.348,region:"SE Nablus",attacks:[
+    {date:"Mar 15",types:["kidnap"],detail:"Group of young men detained"}
+  ]},
+  // === NW Nablus ===
+  {name:"Deir Sharaf",lat:32.248,lng:35.198,region:"NW Nablus",attacks:[
+    {date:"Mar 22",types:["burn"],detail:"Excavator, truck and parked vehicles burned"}
+  ]},
+  {name:"Al-Mas'udiyya archaeological site",lat:32.258,lng:35.202,region:"NW Nablus",attacks:[
+    {date:"Mar 22",types:["burn"],detail:"Tourism tent set ablaze by 30 masked settlers"}
+  ]},
+  {name:"Deir al-Hatab",lat:32.232,lng:35.31,region:"East of Nablus",attacks:[
+    {date:"Mar 22",types:["burn","shoot","beat"],detail:"10 injured, homes and vehicles burned"}
+  ]},
+  {name:"Beit Imrin",lat:32.268,lng:35.218,region:"NW Nablus",attacks:[
+    {date:"Mar 19",types:["beat"],detail:"Homes attacked, residents beaten and pepper-sprayed"}
+  ]},
+  {name:"Asira",lat:32.258,lng:35.278,region:"North of Nablus",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Vehicles stoned"}
+  ]},
+  // === Bethlehem ===
+  {name:"Al-Malha / Za'tara",lat:31.682,lng:35.222,region:"East of Bethlehem",attacks:[
+    {date:"Mar 1",types:["other"],detail:"Settlers placed Israeli flag on wall as provocation"}
+  ]},
+  {name:"Kisan village",lat:31.658,lng:35.248,region:"East of Bethlehem",attacks:[
+    {date:"Mar 14",types:["shoot","steal"],detail:"2 shot with live fire, dozens of sheep stolen"}
+  ]},
+  {name:"Tuqu'",lat:31.668,lng:35.238,region:"SE Bethlehem",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Vehicles stoned"}
+  ]},
+  // === Masafer Yatta — South Hebron ===
+  {name:"Masafer Yatta / Khirbet Susiya",lat:31.392,lng:35.118,region:"South of Hebron",attacks:[
+    {date:"Mar 1",types:["shoot","beat"],detail:"Homes attacked, live fire used"},
+    {date:"Mar 5",types:["beat","shoot"],detail:"2 children beaten, shots fired"},
+    {date:"Mar 9",types:["beat"],detail:"Pepper spray used on residents"}
+  ]},
+  {name:"Wadi Abu Shban",lat:31.382,lng:35.102,region:"Masafer Yatta",attacks:[
+    {date:"Mar 1",types:["beat"],detail:"Shepherds chased"},
+    {date:"Mar 18",types:["beat","shoot","kidnap"],detail:"4 injured, 3 Palestinians abducted, live fire"}
+  ]},
+  {name:"Khirbet Jinba",lat:31.382,lng:35.082,region:"Masafer Yatta",attacks:[
+    {date:"Mar 3",types:["beat"],detail:"Shepherds attacked with stun grenades"}
+  ]},
+  {name:"Wadi al-Rakheem",lat:31.398,lng:35.138,region:"Masafer Yatta",attacks:[
+    {date:"Mar 7",types:["kill","shoot"],detail:"Ameer Shanaran (28) killed, brother and 5 others injured"}
+  ]},
+  {name:"Hawara area (Masafer Yatta)",lat:31.388,lng:35.112,region:"Masafer Yatta",attacks:[
+    {date:"Mar 9",types:["beat"],detail:"Pepper spray, residents injured"},
+    {date:"Mar 21",types:["beat"],detail:"Assault, injured taken to hospital"}
+  ]},
+  {name:"Al-Halawa village",lat:31.372,lng:35.092,region:"Masafer Yatta",attacks:[
+    {date:"Mar 11",types:["burn"],detail:"Room set on fire during Ramadan iftar"}
+  ]},
+  {name:"Khirbet Umm al-Khair",lat:31.378,lng:35.148,region:"Masafer Yatta",attacks:[
+    {date:"Mar 13",types:["other"],detail:"6-year-old girl run over by settler's vehicle"}
+  ]},
+  {name:"Khirbet al-Rakiz",lat:31.388,lng:35.128,region:"Masafer Yatta",attacks:[
+    {date:"Mar 15",types:["beat"],detail:"Elderly man beaten, head injury"}
+  ]},
+  {name:"Khirbet al-Mufaqara",lat:31.385,lng:35.108,region:"Masafer Yatta",attacks:[
+    {date:"Mar 21",types:["beat","kidnap"],detail:"Elderly man and foreign activist detained for hours"}
+  ]},
+  // === Hebron ===
+  {name:"Hamroush / Sa'ir",lat:31.578,lng:35.098,region:"NE Hebron",attacks:[
+    {date:"Mar 3",types:["shoot","beat"],detail:"Homes attacked, live fire"},
+    {date:"Mar 3",types:["shoot"],detail:"Palestinians shot and injured"},
+    {date:"Mar 9",types:["beat"],detail:"Shalaldeh family assaulted"},
+    {date:"Mar 13",types:["shoot"],detail:"Live fire at homes and residents"},
+    {date:"Mar 22",types:["beat"],detail:"Homes attacked"}
+  ]},
+  {name:"Wadi Sa'ir",lat:31.562,lng:35.082,region:"Between Hebron & Bethlehem",attacks:[
+    {date:"Mar 11",types:["road"],detail:"Road between Hebron and Bethlehem blocked with rocks"}
+  ]},
+  {name:"Near Karmei Tsur settlement",lat:31.568,lng:35.098,region:"North of Hebron",attacks:[
+    {date:"Mar 7",types:["shoot"],detail:"Young man shot"}
+  ]},
+  {name:"Jabal al-Sheikh / Eastern Badia",lat:31.352,lng:35.198,region:"SE Hebron",attacks:[
+    {date:"Mar 11",types:["settle"],detail:"Tent erected for new settlement outpost"}
+  ]},
+  {name:"Halhul",lat:31.582,lng:35.082,region:"North of Hebron",attacks:[
+    {date:"Mar 22",types:["beat"],detail:"Home attacked"}
+  ]},
+  // === Jericho ===
+  {name:"Halq al-Rumman",lat:31.898,lng:35.398,region:"NW Jericho",attacks:[
+    {date:"Mar 4",types:["beat"],detail:"4 volunteers injured, moderate to serious wounds"}
+  ]},
+  // === Jerusalem ===
+  {name:"E1 Area",lat:31.778,lng:35.268,region:"East of Jerusalem",attacks:[
+    {date:"Mar 7",types:["settle"],detail:"14 Bedouin communities threatened with displacement — settlement plan"}
+  ]},
+  {name:"Beit Iksa village",lat:31.808,lng:35.178,region:"NW Jerusalem",attacks:[
+    {date:"Mar 11",types:["settle","uproot"],detail:"40 settlers razed land with bulldozer to build outpost"}
+  ]},
+  // === Jenin ===
+  {name:"Arraba",lat:32.408,lng:35.218,region:"SW Jenin",attacks:[
+    {date:"Mar 13",types:["uproot"],detail:"128 dunams of land confiscated"}
+  ]},
+  {name:"Al-Fandaqumiya",lat:32.418,lng:35.268,region:"South of Jenin",attacks:[
+    {date:"Mar 22",types:["burn"],detail:"Homes and vehicles burned, windows smashed"}
+  ]},
+  {name:"Silat al-Dahr",lat:32.418,lng:35.242,region:"SW Jenin",attacks:[
+    {date:"Mar 22",types:["beat","burn"],detail:"Man beaten, attempted arson on his home"}
+  ]},
+  {name:"Imriha",lat:32.398,lng:35.242,region:"SW Jenin",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Community stormed"}
+  ]},
+  {name:"Jaba'",lat:32.438,lng:35.298,region:"South of Jenin",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Village outskirts stormed"}
+  ]},
+  // === Salfit ===
+  {name:"Qarawat Bani Hassan / Kh. Shhada",lat:32.078,lng:35.118,region:"West of Salfit",attacks:[
+    {date:"Mar 16",types:["beat","steal"],detail:"55-year-old shepherd beaten, attempted sheep theft"}
+  ]},
+  {name:"Bruqin",lat:32.068,lng:35.098,region:"Salfit",attacks:[
+    {date:"Mar 22",types:["other"],detail:"3 injured from stones thrown at vehicle"}
+  ]},
+  {name:"Izbet Mughr al-Asmar / Deir Istiya",lat:32.118,lng:35.148,region:"NW Salfit",attacks:[
+    {date:"Mar 21",types:["beat","steal"],detail:"Shepherds attacked, one arrested, dogs set on sheep"}
+  ]},
+  // === Qalqilya ===
+  {name:"Kafr Qaddum",lat:32.188,lng:35.098,region:"East of Qalqilya",attacks:[
+    {date:"Mar 12",types:["kidnap","beat"],detail:"Young man abducted, beaten, left with fractures"}
+  ]},
+  {name:"Near Kedumim settlement",lat:32.178,lng:35.102,region:"Qalqilya",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Vehicles stoned"}
+  ]},
+  {name:"Haris village",lat:32.098,lng:35.128,region:"West of Salfit",attacks:[
+    {date:"Mar 22",types:["other"],detail:"Vehicles stoned"}
+  ]}
+];
+
+const map = L.map('map', { center: [31.95, 35.22], zoom: 9, zoomControl: false });
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
+}).addTo(map);
+
+const wbBorder = [[32.55,35.0],[32.55,35.6],[32.1,35.6],[31.3,35.5],[31.3,35.0],[31.5,34.9],[32.0,35.0],[32.55,35.0]];
+L.polyline(wbBorder, { color: '#ED1C24', weight: 1.5, opacity: 0.3, dashArray: '8,6' }).addTo(map);
+
+function getDominantType(attacks) {
+  const priority = ['kill','shoot','burn','beat','kidnap','steal','displace','settle','uproot','road','vandal','other'];
+  for (const p of priority) { for (const a of attacks) { if (a.types.includes(p)) return p; } }
+  return 'other';
+}
+
+let allMarkers = [];
+
+locations.forEach(loc => {
+  const count = loc.attacks.length;
+  const radius = count === 1 ? 7 : count <= 3 ? 11 : 16;
+  const dominant = getDominantType(loc.attacks);
+  const color = ATTACK_TYPES[dominant]?.color || '#607d8b';
+  
+  let popupHTML = `<div class="popup-title">${loc.name}</div>`;
+  popupHTML += `<div class="popup-region">${loc.region} <span class="popup-count">${count} incident${count>1?'s':''}</span></div>`;
+  
+  loc.attacks.forEach(a => {
+    popupHTML += `<div class="popup-attack"><span class="popup-date">${a.date}, 2026</span> `;
+    a.types.forEach(t => {
+      const info = ATTACK_TYPES[t] || ATTACK_TYPES.other;
+      popupHTML += `<span class="popup-type-tag" style="background:${info.tag};color:${info.color};border:1px solid ${info.color}">${info.label}</span>`;
+    });
+    popupHTML += `<div class="popup-detail">${a.detail}</div></div>`;
+  });
+  
+  const marker = L.circleMarker([loc.lat, loc.lng], {
+    radius, fillColor: color, color, weight: 2, opacity: 0.9, fillOpacity: 0.4, className: 'attack-marker'
+  }).addTo(map);
+  
+  marker.bindPopup(popupHTML, { maxWidth: 320, minWidth: 220 });
+  
+  const labelText = count > 1 ? `${loc.name} (${count})` : loc.name;
+  marker.bindTooltip(labelText, { permanent: false, direction: 'top', offset: [0, -radius - 2], className: 'loc-label' });
+  
+  if (dominant === 'kill') {
+    L.circleMarker([loc.lat, loc.lng], { radius: radius+6, fillColor:'#ff1744', color:'#ff1744', weight:1, opacity:0.3, fillOpacity:0.1 }).addTo(map);
+  }
+  
+  const allTypes = [];
+  loc.attacks.forEach(a => a.types.forEach(t => { if (!allTypes.includes(t)) allTypes.push(t); }));
+  allMarkers.push({ marker, loc, allTypes, dominant });
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    allMarkers.forEach(({ marker, allTypes }) => {
+      marker.setStyle(filter === 'all' || allTypes.includes(filter) ? { opacity:0.9, fillOpacity:0.4 } : { opacity:0.1, fillOpacity:0.05 });
+    });
+  });
+});
+
+const regions = [
+  {name:"Northern Jordan Valley",lat:32.42,lng:35.52},{name:"Nablus",lat:32.24,lng:35.18},
+  {name:"Ramallah",lat:31.92,lng:35.15},{name:"Hebron",lat:31.53,lng:34.98},
+  {name:"Bethlehem",lat:31.70,lng:35.15},{name:"Masafer Yatta",lat:31.35,lng:35.05},
+  {name:"Jenin",lat:32.46,lng:35.20},{name:"Jerusalem",lat:31.78,lng:35.15},
+  {name:"Tubas",lat:32.32,lng:35.36}
+];
+regions.forEach(r => {
+  L.marker([r.lat,r.lng], {
+    icon: L.divIcon({
+      className:'region-label',
+      html:`<div style="color:#666;font-size:11px;font-family:'Space Grotesk',sans-serif;font-weight:700;white-space:nowrap;text-shadow:0 0 8px rgba(0,0,0,0.8)">${r.name}</div>`,
+      iconSize:[120,20], iconAnchor:[60,10]
+    })
+  }).addTo(map);
+});
+</script>
+</body>
+</html>
