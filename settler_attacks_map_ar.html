@@ -30,13 +30,14 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html { height: 100%; }
+
 body {
   font-family: 'Noto Naskh Arabic', 'Noto Kufi Arabic', sans-serif;
   background: var(--aa-darker);
   color: var(--aa-white);
   overflow: hidden;
-  height: 100vh;
-  height: -webkit-fill-available;
+  height: 100%;
 }
 
 #header {
@@ -129,7 +130,7 @@ body {
   margin-top: 2px;
 }
 
-#map-container { position: relative; height: calc(100vh - 130px - 68px); }
+#map-container { position: relative; height: calc(100% - 130px - 68px); }
 
 #map { height: 100%; width: 100%; }
 
@@ -413,7 +414,7 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--aa-red); border-radius: 2px; }
 
 /* ── Timeline ── */
-#map-container { position: relative; height: calc(100vh - 130px - 68px); }
+#map-container { position: relative; height: calc(100% - 130px - 68px); }
 
 #timeline {
   position: relative; z-index: 1001;
