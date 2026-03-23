@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Litani River Bridges Under Attack | Anadolu Agency</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--aa-red:#ED1C24;--aa-dark:#1a1a1a;--aa-darker:#111;--aa-white:#fff;--destroyed:#ff1744;--partial:#ff9800;--safe:#4caf50}
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--aa-darker);color:var(--aa-white);overflow:hidden;height:100%}
+#map-container{position:relative;height:100%}
+#map{height:100%;width:100%}
+.leaflet-tile-pane{filter:saturate(0.3) brightness(0.7)}
+
+#embed-title{position:absolute;top:0;left:0;right:0;z-index:1000;background:linear-gradient(180deg,rgba(17,17,17,0.97) 0%,rgba(17,17,17,0.85) 70%,transparent 100%);padding:12px 18px 26px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.et-left{display:flex;align-items:center;gap:10px}
+.et-aa{width:30px;height:30px;background:var(--aa-red);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:12px;color:#fff;flex-shrink:0}
+.et-h1{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1.4}
+.et-sub{font-size:11px;color:#888;font-family:'DM Sans',sans-serif}
+.et-stats{display:flex;gap:14px;flex-wrap:wrap}
+.et-stat{font-size:11px;color:#aaa;font-family:'Space Grotesk',sans-serif}
+.et-stat span{font-weight:800;font-size:16px;margin-right:3px}
+
+#source-bar{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);background:rgba(26,26,26,0.92);padding:6px 14px;border-radius:6px;font-size:10px;color:#888;z-index:1000;border:1px solid #444;white-space:nowrap;font-family:'DM Sans',sans-serif}
+#source-bar span{color:var(--aa-red);font-weight:700}
+
+#legend{position:absolute;bottom:34px;left:12px;background:rgba(26,26,26,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:14px 16px;border-radius:10px;border:1px solid #444;z-index:1000;min-width:190px}
+#legend h3{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;margin-bottom:10px;color:var(--aa-white);border-bottom:1px solid var(--aa-red);padding-bottom:6px}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:#ccc}
+.legend-circle{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.legend-line{width:20px;height:3px;border-radius:2px;flex-shrink:0}
+
+#info-panel{position:absolute;bottom:34px;right:12px;background:rgba(26,26,26,0.96);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:16px 18px;border-radius:10px;border:1px solid #444;z-index:1000;max-width:370px;min-width:290px;display:none}
+#info-panel h3{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;color:var(--aa-white);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-badge{font-size:10px;padding:2px 10px;border-radius:12px;font-weight:600;font-family:'Space Grotesk',sans-serif}
+.badge-destroyed{background:rgba(255,23,68,0.15);color:#ff1744;border:1px solid rgba(255,23,68,0.4)}
+.badge-partial{background:rgba(255,152,0,0.15);color:#ff9800;border:1px solid rgba(255,152,0,0.4)}
+.badge-safe{background:rgba(76,175,80,0.15);color:#4caf50;border:1px solid rgba(76,175,80,0.4)}
+.info-type{font-size:10px;color:#666;margin-bottom:8px;font-family:'DM Sans',sans-serif;border-bottom:1px solid #333;padding-bottom:8px}
+.info-row{font-size:12px;color:#ccc;margin-bottom:6px;line-height:1.7;font-family:'DM Sans',sans-serif}
+.info-row strong{color:var(--aa-red);font-weight:600}
+.close-btn{position:absolute;top:8px;right:10px;color:#666;cursor:pointer;font-size:16px;background:none;border:none;transition:color 0.2s;font-family:sans-serif}
+.close-btn:hover{color:var(--aa-white)}
+
+#filter-panel{position:absolute;top:72px;left:12px;z-index:1000;background:rgba(26,26,26,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 14px;border-radius:8px;border:1px solid #444}
+#filter-panel h4{font-family:'Space Grotesk',sans-serif;font-size:11px;color:#aaa;margin-bottom:6px}
+.filter-btn{display:inline-block;padding:4px 12px;margin:2px;border-radius:12px;font-size:10px;font-family:'DM Sans',sans-serif;cursor:pointer;border:1px solid #555;background:transparent;color:#ccc;transition:all 0.2s}
+.filter-btn.active{border-color:var(--aa-red);background:rgba(237,28,36,0.15);color:var(--aa-white)}
+.filter-btn:hover{border-color:var(--aa-red)}
+
+.leaflet-popup-content-wrapper{background:var(--aa-dark)!important;color:var(--aa-white)!important;border-radius:8px!important;border:1px solid var(--aa-red)!important;box-shadow:0 8px 32px rgba(0,0,0,0.5)!important}
+.leaflet-popup-tip{background:var(--aa-dark)!important}
+.leaflet-popup-content{margin:12px 14px!important;font-family:'DM Sans',sans-serif!important;font-size:12px!important;line-height:1.8!important}
+.loc-label{background:rgba(26,26,26,0.92)!important;border:1px solid var(--aa-red)!important;border-radius:4px!important;box-shadow:0 2px 8px rgba(0,0,0,0.6)!important;font-family:'Space Grotesk',sans-serif!important;font-size:12px!important;font-weight:700!important;color:#fff!important;white-space:nowrap!important;padding:4px 10px!important}
+.loc-label::before{border-top-color:var(--aa-red)!important}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#333}
+::-webkit-scrollbar-thumb{background:var(--aa-red);border-radius:2px}
+
+.city-icon{background:none!important;border:none!important;box-shadow:none!important}
+
+@media(max-width:768px){
+  #embed-title{padding:8px 10px 16px}
+  .et-h1{font-size:12px}
+  .et-stats{gap:8px}
+  .et-stat span{font-size:13px}
+  #filter-panel{top:60px;max-width:180px}
+  #legend{display:none}
+  #info-panel{max-width:270px;min-width:230px;right:8px;bottom:28px}
+}
+</style>
+</head>
+<body>
+<div id="map-container">
+  <div id="map"></div>
+
+  <div id="embed-title">
+    <div class="et-left">
+      <div class="et-aa">AA</div>
+      <div>
+        <div class="et-h1">Litani River Bridges Under Israeli Attack — Southern Lebanon</div>
+        <div class="et-sub">March 2026 | Interactive Map</div>
+      </div>
+    </div>
+    <div class="et-stats">
+      <div class="et-stat"><span style="color:#ff1744">8</span> Destroyed</div>
+      <div class="et-stat"><span style="color:#ff9800">1</span> Roads cut</div>
+      <div class="et-stat"><span style="color:#4caf50">1</span> Intact</div>
+      <div class="et-stat"><span>10</span> Crossings</div>
+    </div>
+  </div>
+
+  <div id="source-bar">Source: <span>Anadolu Agency</span> + field reports | March 23, 2026</div>
+
+  <div id="filter-panel">
+    <h4>Filter by status:</h4>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="destroyed">Destroyed</button>
+    <button class="filter-btn" data-filter="partial">Roads cut</button>
+    <button class="filter-btn" data-filter="safe">Intact</button>
+  </div>
+
+  <div id="legend">
+    <h3>Color Key — Bridge Status</h3>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff1744"></div>Destroyed / Out of service</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#ff9800"></div>Access roads targeted</div>
+    <div class="legend-item"><div class="legend-circle" style="background:#4caf50"></div>Not yet targeted</div>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid #444;font-size:10px;color:#888;line-height:1.7">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><div class="legend-line" style="background:#2196f3"></div>Litani River</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><div class="legend-line" style="background:#2196f3;opacity:.4;border:1px dashed #2196f3;height:0"></div>Blue Line (border)</div>
+      <div style="margin-top:4px">Click any marker for details</div>
+    </div>
+  </div>
+
+  <div id="info-panel">
+    <button class="close-btn" onclick="closeInfo()">&times;</button>
+    <div id="info-content"></div>
+  </div>
+</div>
+
+<script>
+var bridges = [
+  {
+    id:'qasimiye', name:'Qasmiyeh Bridge (Main)',
+    lat:33.293, lng:35.225,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'main', typeEn:'Main — Largest bridge on the Litani',
+    connects:'Links Sidon to Tyre on the coastal highway, 10 km north of Tyre.',
+    importance:'Known as the "Lifeline of the South." Key junction between the western, central, and eastern sectors of southern Lebanon. Primary crossing for civilians, vehicles, trucks, and goods.',
+    attack:'3 consecutive airstrikes on Sunday, March 22, in the Burj Rahal area — extensive damage, completely out of service.',
+    aftermath:'Lebanese Army redeployed around the site. Korean Battalion (UNIFIL) deployed. UNIFIL evacuated its checkpoint on the bridge.'
+  },
+  {
+    id:'arzi', name:'Arzi Bridge',
+    lat:33.289, lng:35.233,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'secondary', typeEn:'Branch of Qasmiyeh',
+    connects:'Small branch extending from the main Qasmiyeh Bridge.',
+    importance:'Served as a supplementary crossing to the main bridge.',
+    attack:'Struck by an additional airstrike on Monday, March 23, following earlier threats.',
+    aftermath:'Heightened tension in areas connecting south of the Litani to Tyre and Sidon.'
+  },
+  {
+    id:'kinayat', name:'Kinayat Bridge',
+    lat:33.296, lng:35.240,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'secondary', typeEn:'Secondary — Qasmiyeh area',
+    connects:'Crosses the Litani River, linking inland areas around the river.',
+    importance:'Secondary crossing in the Qasmiyeh area complementing the main bridge.',
+    attack:'Struck on March 18 by an Israeli airstrike.',
+    aftermath:'Two journalists were injured during media coverage of the strike.'
+  },
+  {
+    id:'old_qasimiye', name:'Old Qasmiyeh Bridge',
+    lat:33.298, lng:35.218,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'secondary', typeEn:'Secondary — Historic (3rd–4th century AD)',
+    connects:'Near the main bridge — a Roman-era historic bridge.',
+    importance:'Ancient archaeological bridge dating to the Roman period.',
+    attack:'Directly targeted by Israeli strikes.',
+    aftermath:''
+  },
+  {
+    id:'burj_rahal', name:'Emergency Crossing (Burj Rahal)',
+    lat:33.285, lng:35.245,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'secondary', typeEn:'Emergency bypass crossing',
+    connects:'Located near the South Irrigation Authority facility on the Litani River.',
+    importance:'Alternative crossing used after other bridges in the area were destroyed.',
+    attack:'Struck on March 18 by an airstrike.',
+    aftermath:'Last available alternative crossing in the Qasmiyeh area was severed.'
+  },
+  {
+    id:'zrariye', name:'Zrariyeh Bridge (Tir Falsayeh / Dallafeh)',
+    lat:33.363, lng:35.362,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'main', typeEn:'Main',
+    connects:'Links the districts of Tyre, Bint Jbeil, Nabatieh, and Zahrani.',
+    importance:'Vital artery between coastal and inland areas. 43 m long, 12 m wide. Built in 1992.',
+    attack:'Struck on Friday, March 14 — the first bridge hit in this round of escalation.',
+    aftermath:'Previously destroyed in 1996 and 2006 wars, then rebuilt each time.'
+  },
+  {
+    id:'barghuz', name:'Barghuz Bridge',
+    lat:33.380, lng:35.410,
+    status:'safe', statusEn:'Not yet targeted', badge:'badge-safe',
+    type:'secondary', typeEn:'Secondary',
+    connects:'Connects both banks of the Litani River.',
+    importance:'The only crossing that Israel has not struck among all bridges and crossings.',
+    attack:'No strikes reported as of publication.',
+    aftermath:'Theoretically the only remaining crossing over the river.'
+  },
+  {
+    id:'qaqaiye', name:'Qaqaiyeh Bridge',
+    lat:33.348, lng:35.440,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'main', typeEn:'Main',
+    connects:'Links Nabatieh district to Bint Jbeil district.',
+    importance:'One of the most important internal corridors. Located in the central section of the river above Qaqaiyeh town.',
+    attack:'Fierce airstrike on Monday, March 23, led to its complete destruction.',
+    aftermath:'Also connects Nabatieh to the Wadi al-Hujayr area and Ghandouriyeh sector.'
+  },
+  {
+    id:'khardali', name:'Khardali Bridge',
+    lat:33.362, lng:35.497,
+    status:'partial', statusEn:'Roads severed', badge:'badge-partial',
+    type:'main', typeEn:'Main',
+    connects:'Links Nabatieh district to Marjayoun district (between Kfar Tebnit and Deir Mimas).',
+    importance:'Key internal link between Nabatieh and the southeast. Located near Beaufort Castle (Qalaat al-Shaqif). The river bends westward at this point.',
+    attack:'Not directly struck — access roads were bombed, including the Khiam–Marjayoun and Debbine–Marjayoun roads.',
+    aftermath:'Effectively out of service despite not being directly destroyed.'
+  },
+  {
+    id:'qantara', name:'Qantara Bridge (Wadi al-Hujayr)',
+    lat:33.330, lng:35.520,
+    status:'destroyed', statusEn:'Destroyed', badge:'badge-destroyed',
+    type:'secondary', typeEn:'Secondary — Strategic corridor',
+    connects:'Located in the Wadi al-Hujayr valley, linking areas in the south to the Lebanese interior.',
+    importance:'A highly sensitive geographic corridor. Links the Marjayoun area to Khiam and Ibl al-Saqi.',
+    attack:'Struck during the second week of March by an airstrike.',
+    aftermath:'Isolated border towns from the Marjayoun district center.'
+  }
+];
+
+var cities = [
+  {name:'Beirut', lat:33.8938, lng:35.5018, size:7, main:true},
+  {name:'Sidon', lat:33.5633, lng:35.3714, size:6, main:true},
+  {name:'Tyre', lat:33.2705, lng:35.2038, size:6, main:true},
+  {name:'Nabatieh', lat:33.3778, lng:35.4833, size:5, main:true},
+  {name:'Marjayoun', lat:33.3608, lng:35.5917, size:5, main:true},
+  {name:'Bint Jbeil', lat:33.1211, lng:35.4331, size:4, main:false},
+  {name:'Naqoura', lat:33.1167, lng:35.1361, size:3, main:false},
+  {name:'Khiam', lat:33.2825, lng:35.5847, size:3, main:false},
+  {name:'Hasbaya', lat:33.3983, lng:35.6850, size:3, main:false},
+  {name:'Jezzine', lat:33.5411, lng:35.5833, size:3, main:false},
+  {name:'Zahrani', lat:33.4583, lng:35.3667, size:3, main:false}
+];
+
+var riverPath = [
+  [33.280,35.210],[33.290,35.230],[33.300,35.260],[33.320,35.300],
+  [33.340,35.340],[33.360,35.370],[33.375,35.400],[33.380,35.420],
+  [33.365,35.450],[33.355,35.470],[33.360,35.500],[33.370,35.530],
+  [33.390,35.560],[33.410,35.590],[33.430,35.620],[33.460,35.660],
+  [33.500,35.700],[33.540,35.740],[33.580,35.780],[33.620,35.820],
+  [33.670,35.860],[33.730,35.900],[33.800,35.940],[33.870,35.980]
+];
+
+var blueLine = [
+  [33.10,35.10],[33.10,35.20],[33.10,35.30],[33.10,35.40],
+  [33.10,35.50],[33.10,35.60],[33.10,35.70],[33.10,35.80]
+];
+
+var map = L.map('map',{center:[33.34,35.38],zoom:11,zoomControl:false,attributionControl:false});
+L.control.zoom({position:'topright'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:18}).addTo(map);
+
+/* Blue Line */
+L.polyline(blueLine,{color:'#2196f3',weight:1.5,opacity:0.2,dashArray:'10,6'}).addTo(map);
+L.marker([33.10,35.14],{icon:L.divIcon({className:'city-icon',html:'<div style="color:rgba(33,150,243,0.4);font-size:10px;white-space:nowrap;font-family:Space Grotesk,sans-serif;font-weight:600">Blue Line (border)</div>',iconSize:[130,16],iconAnchor:[65,8]})}).addTo(map);
+
+/* Litani River */
+L.polyline(riverPath,{color:'#2196f3',weight:4.5,opacity:0.5,lineCap:'round',lineJoin:'round'}).addTo(map);
+L.polyline(riverPath,{color:'#2196f3',weight:14,opacity:0.07,lineCap:'round',lineJoin:'round'}).addTo(map);
+
+/* River label */
+L.marker([33.46,35.65],{icon:L.divIcon({className:'city-icon',html:'<div style="color:rgba(33,150,243,0.5);font-size:13px;font-weight:700;white-space:nowrap;font-family:Space Grotesk,sans-serif;transform:rotate(-28deg)">Litani River</div>',iconSize:[130,20],iconAnchor:[65,10]})}).addTo(map);
+
+/* Cities */
+cities.forEach(function(c){
+  L.circleMarker([c.lat,c.lng],{radius:c.size,fillColor:'#fff',color:'#fff',weight:c.main?1.5:0.8,opacity:c.main?0.6:0.35,fillOpacity:c.main?0.4:0.2}).addTo(map);
+  var fsize=c.main?'13px':'11px';
+  var fweight=c.main?'700':'500';
+  var fopacity=c.main?'0.75':'0.45';
+  L.marker([c.lat,c.lng],{icon:L.divIcon({className:'city-icon',html:'<div style="color:rgba(255,255,255,'+fopacity+');font-size:'+fsize+';font-weight:'+fweight+';white-space:nowrap;font-family:Space Grotesk,sans-serif;text-shadow:0 0 12px rgba(0,0,0,0.95)">'+c.name+'</div>',iconSize:[100,20],iconAnchor:[50,-8]})}).addTo(map);
+});
+
+/* Bridge markers */
+var allMarkers=[];
+
+bridges.forEach(function(b){
+  var color=b.status==='destroyed'?'#ff1744':b.status==='partial'?'#ff9800':'#4caf50';
+  var radius=b.type==='main'?10:7;
+
+  if(b.status==='destroyed'){
+    L.circleMarker([b.lat,b.lng],{radius:radius+8,fillColor:color,color:color,weight:1,opacity:0.25,fillOpacity:0.08}).addTo(map);
+  }
+
+  var marker=L.circleMarker([b.lat,b.lng],{radius:radius,fillColor:color,color:color,weight:2.5,opacity:0.9,fillOpacity:0.5}).addTo(map);
+
+  marker.bindTooltip(b.name,{permanent:false,direction:'top',offset:[0,-radius-4],className:'loc-label'});
+  marker.on('click',function(){showInfo(b)});
+
+  allMarkers.push({marker:marker,bridge:b,color:color});
+});
+
+function showInfo(b){
+  var html='<h3>'+b.name+' <span class="status-badge '+b.badge+'">'+b.statusEn+'</span></h3>';
+  html+='<div class="info-type">'+b.typeEn+'</div>';
+  html+='<div class="info-row"><strong>Connects: </strong>'+b.connects+'</div>';
+  html+='<div class="info-row"><strong>Significance: </strong>'+b.importance+'</div>';
+  html+='<div class="info-row"><strong>Attack: </strong>'+b.attack+'</div>';
+  if(b.aftermath) html+='<div class="info-row"><strong>Aftermath: </strong>'+b.aftermath+'</div>';
+  document.getElementById('info-content').innerHTML=html;
+  document.getElementById('info-panel').style.display='block';
+  map.setView([b.lat,b.lng],12,{animate:true});
+}
+
+function closeInfo(){document.getElementById('info-panel').style.display='none'}
+
+document.querySelectorAll('.filter-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+    btn.classList.add('active');
+    var f=btn.dataset.filter;
+    allMarkers.forEach(function(m){
+      var show=f==='all'||(f==='destroyed'&&m.bridge.status==='destroyed')||(f==='partial'&&m.bridge.status==='partial')||(f==='safe'&&m.bridge.status==='safe');
+      m.marker.setStyle(show?{opacity:0.9,fillOpacity:0.5}:{opacity:0.08,fillOpacity:0.03});
+    });
+  });
+});
+
+map.on('click',function(e){if(!e.originalEvent.target.closest('#info-panel'))closeInfo()});
+</script>
+</body>
+</html>
