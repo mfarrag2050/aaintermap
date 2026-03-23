@@ -86,7 +86,7 @@ body {
 
 .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
 
-#map-container { position: relative; height: 1071px; }
+#map-container { position: relative; height: 2000px; }
 
 /* ── Timeline ── */
 #timeline {
@@ -153,7 +153,7 @@ body {
   font-family: 'Space Grotesk', sans-serif; font-size: 11px;
   color: #888; flex-shrink: 0; white-space: nowrap; min-width: 80px;
 }
-#map { height: 100%; width: 100%; }
+#map { position: absolute; top: 173px; height: 1071px; width: 100%; }
 
 .leaflet-popup-content-wrapper {
   background: var(--aa-dark) !important;
@@ -301,19 +301,35 @@ body {
 .et-stat { font-size: 10px; color: #aaa; font-family: 'Space Grotesk', sans-serif; }
 .et-stat span { font-weight: 800; font-size: 14px; color: var(--aa-red); margin-right: 2px; }
 
-/* Position adjustments for AA embed */
-#filter-panel { top: 55px !important; }
-#source-bar { top: auto !important; bottom: 8px !important; right: auto !important; left: 50% !important; transform: translateX(-50%) !important; }
-#legend { bottom: 30px !important; }
-#size-legend { bottom: 30px !important; }
+/* Position adjustments for AA embed — visible window: y=173 to y=1244 */
+#embed-title { top: 175px !important; }
+#filter-panel { top: 235px !important; }
+#source-bar { top: auto !important; bottom: auto !important; right: auto !important; left: 50% !important; transform: translateX(-50%) !important; top: 1210px !important; }
+
+/* Legends — positioned below filter panel on left */
+#legend { 
+  position: absolute; top: 295px !important; left: 10px !important;
+  bottom: auto !important; right: auto !important;
+}
+#size-legend { 
+  position: absolute; top: auto !important; bottom: auto !important;
+  right: 10px !important; left: auto !important; 
+  top: 1100px !important;
+}
+
+/* Collapsible legend toggle */
+.legend-toggle {
+  display: inline-block; cursor: pointer; font-size: 10px;
+  color: #888; float: left; margin-left: 8px; transition: color 0.2s;
+}
+.legend-toggle:hover { color: var(--aa-white); }
+.legend-body { transition: max-height 0.3s ease; overflow: hidden; }
+.legend-body.collapsed { max-height: 0 !important; }
 </style>
 </head>
 <body>
 
-<!-- 173px top spacer — gets cropped by AA's margin-top: -173px -->
-<div id="top-spacer" style="height:173px; background:#111;"></div>
-
-<!-- Visible area: exactly 1071px -->
+<!-- Map fills entire 2000px, AA crops top 173px and bottom 756px -->
 <div id="map-container">
   <div id="map"></div>
   
@@ -350,7 +366,8 @@ body {
   </div>
 
   <div id="legend">
-    <h3>Color Key — Attack Type</h3>
+    <h3>Color Key — Attack Type <span class="legend-toggle" onclick="this.parentElement.nextElementSibling.classList.toggle('collapsed'); this.textContent = this.textContent==='▼' ? '▲' : '▼'">▼</span></h3>
+    <div class="legend-body">
     <div class="legend-item"><div class="legend-circle" style="background:#ff1744"></div>Killing / Critical injury</div>
     <div class="legend-item"><div class="legend-circle" style="background:#ff5722"></div>Shooting / Live fire</div>
     <div class="legend-item"><div class="legend-circle" style="background:#ff9800"></div>Physical assault</div>
@@ -360,6 +377,7 @@ body {
     <div class="legend-item"><div class="legend-circle" style="background:#9c27b0"></div>Settlement outpost</div>
     <div class="legend-item"><div class="legend-circle" style="background:#2196f3"></div>Forced displacement</div>
     <div class="legend-item"><div class="legend-circle" style="background:#607d8b"></div>Road closure / Other</div>
+    </div>
   </div>
 
   <div id="size-legend">
@@ -371,8 +389,6 @@ body {
   </div>
 </div>
 
-<!-- 756px bottom spacer — gets cropped by AA's margin-bottom: -756px -->
-<div id="bottom-spacer" style="height:756px; background:#111;"></div>
 
 <script>
 // ── Timeline engine ──────────────────────────────────────────────
@@ -649,6 +665,9 @@ L.control.zoom({ position: 'topright' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 18
 }).addTo(map);
+
+// Ensure map renders correctly in positioned div
+setTimeout(() => { map.invalidateSize(); }, 100);
 
 const wbBorder = [[32.55,35.0],[32.55,35.6],[32.1,35.6],[31.3,35.5],[31.3,35.0],[31.5,34.9],[32.0,35.0],[32.55,35.0]];
 L.polyline(wbBorder, { color: '#ED1C24', weight: 1.5, opacity: 0.3, dashArray: '8,6' }).addTo(map);
