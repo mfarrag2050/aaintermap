@@ -18,13 +18,14 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html { height: 100%; }
+
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--aa-darker);
   color: var(--aa-white);
   overflow: hidden;
-  height: 100vh;
-  height: -webkit-fill-available;
+  height: 100%;
 }
 
 #header {
@@ -85,7 +86,7 @@ body {
 
 .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
 
-#map-container { position: relative; height: calc(100vh - 130px - 68px); }
+#map-container { position: relative; height: calc(100% - 130px - 68px); }
 
 /* ── Timeline ── */
 #timeline {
