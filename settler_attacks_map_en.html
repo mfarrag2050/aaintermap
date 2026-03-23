@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Israeli Settler Attacks — Embed</title>
+<title>Israeli Settler Attacks in the Occupied West Bank</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
@@ -18,62 +18,143 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-  height: 100%;
+html { height: 100%; }
+
+body {
   font-family: 'DM Sans', sans-serif;
   background: var(--aa-darker);
   color: var(--aa-white);
   overflow: hidden;
-}
-
-/* ── Mini stats bar overlaid on map ── */
-#mini-stats {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1002;
-  display: flex;
-  gap: 0;
-  background: rgba(17,17,17,0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #333;
-  border-top: 2px solid var(--aa-red);
-  border-radius: 8px;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.ms-item {
-  padding: 6px 14px;
-  text-align: center;
-  border-right: 1px solid #2a2a2a;
-}
-.ms-item:last-child { border-right: none; }
-
-.ms-num {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--aa-red);
-  line-height: 1;
-}
-.ms-label {
-  font-size: 9px;
-  color: #888;
-  margin-top: 2px;
-}
-
-/* ── Map fills full height ── */
-#map-container {
-  position: relative;
   height: 100%;
-  width: 100%;
+}
+
+#header {
+  background: linear-gradient(135deg, var(--aa-dark) 0%, #2d0a0a 100%);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--aa-red);
+  z-index: 1000;
+  position: relative;
+}
+
+#header .logo-area { display: flex; align-items: center; gap: 12px; }
+
+#header .aa-mark {
+  width: 36px; height: 36px;
+  background: var(--aa-red); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 900; font-size: 14px; color: white;
+}
+
+#header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--aa-white); line-height: 1.4;
+}
+
+#header .subtitle { font-size: 12px; color: #aaa; font-weight: 400; }
+
+#header .date-range {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px; color: var(--aa-red);
+  background: rgba(237,28,36,0.1);
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid rgba(237,28,36,0.3); font-weight: 600;
+}
+
+#stats-bar {
+  background: var(--aa-dark);
+  display: flex; gap: 0;
+  border-bottom: 1px solid #333;
+  z-index: 999; position: relative; overflow-x: auto;
+}
+
+.stat-item {
+  flex: 1; min-width: 100px;
+  padding: 10px 14px; text-align: center;
+  border-right: 1px solid #333;
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 900; color: var(--aa-red);
+}
+
+.stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+
+#map-container { position: relative; height: 100%; }
+
+/* ── Timeline ── */
+#timeline {
+  position: relative; z-index: 1001;
+  background: var(--aa-dark); border-top: 2px solid var(--aa-red);
+  padding: 0 20px; height: 68px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+#tl-controls { display: flex; gap: 6px; flex-shrink: 0; }
+
+.tl-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid #555; background: rgba(255,255,255,0.05);
+  color: #ccc; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; transition: all 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.tl-btn:hover { border-color: var(--aa-red); color: var(--aa-white); background: rgba(237,28,36,0.12); }
+.tl-btn.active { background: var(--aa-red); border-color: var(--aa-red); color: #fff; }
+
+#tl-date {
+  font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+  font-weight: 700; color: var(--aa-red); white-space: nowrap;
+  min-width: 90px; text-align: center; flex-shrink: 0;
+}
+
+#tl-slider-wrap { flex: 1; position: relative; padding: 8px 0; cursor: pointer; }
+
+#tl-track {
+  height: 4px; background: #333; border-radius: 2px;
+  position: relative;
+}
+#tl-fill {
+  height: 100%; background: var(--aa-red); border-radius: 2px;
+  width: 0%; transition: width 0.15s linear;
+}
+#tl-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--aa-red); border: 2px solid #fff;
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  left: 0%; transition: left 0.15s linear; cursor: grab;
+  box-shadow: 0 0 6px rgba(237,28,36,0.6);
+}
+
+#tl-ticks {
+  display: flex; justify-content: space-between;
+  margin-top: 5px; padding: 0 0;
+}
+#tl-ticks span {
+  font-size: 9px; color: #555; font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+}
+
+#tl-speed {
+  font-family: 'Space Grotesk', sans-serif; font-size: 10px;
+  color: #888; flex-shrink: 0; cursor: pointer;
+  border: 1px solid #444; padding: 3px 8px; border-radius: 10px;
+  background: transparent; transition: all 0.2s; -webkit-appearance: none; appearance: none;
+}
+#tl-speed:hover { border-color: var(--aa-red); color: var(--aa-white); }
+
+#tl-counter {
+  font-family: 'Space Grotesk', sans-serif; font-size: 11px;
+  color: #888; flex-shrink: 0; white-space: nowrap; min-width: 80px;
 }
 #map { height: 100%; width: 100%; }
 
-/* ── Popups ── */
 .leaflet-popup-content-wrapper {
   background: var(--aa-dark) !important;
   color: var(--aa-white) !important;
@@ -82,87 +163,129 @@ html, body {
   box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
 }
 .leaflet-popup-tip { background: var(--aa-dark) !important; }
+
 .leaflet-popup-content {
   margin: 12px 14px !important;
   font-family: 'DM Sans', sans-serif !important;
-  font-size: 13px !important;
-  line-height: 1.6 !important;
-  max-height: 260px;
-  overflow-y: auto;
+  font-size: 13px !important; line-height: 1.6 !important;
+  max-height: 280px; overflow-y: auto;
 }
-.popup-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: var(--aa-red); margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 6px; }
+
+.popup-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--aa-red);
+  margin-bottom: 4px; border-bottom: 1px solid #444; padding-bottom: 6px;
+}
 .popup-region { font-size: 11px; color: #999; margin-bottom: 8px; }
 .popup-attack { padding: 5px 0; border-bottom: 1px solid #333; font-size: 12px; }
 .popup-attack:last-child { border-bottom: none; }
 .popup-date { color: #f5a623; font-size: 11px; font-weight: 600; }
-.popup-type-tag { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin: 2px 4px 2px 0; font-weight: 600; }
-.popup-detail { color: #ccc; font-size: 11px; margin-top: 2px; }
-.popup-count { background: var(--aa-red); color: white; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 6px; }
 
-/* ── Legend (bottom-right) ── */
-#legend {
-  position: absolute; bottom: 14px; right: 14px;
-  background: rgba(26,26,26,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  padding: 10px 14px; border-radius: 10px;
-  border: 1px solid #444; z-index: 1000; min-width: 180px;
+.popup-type-tag {
+  display: inline-block; font-size: 10px;
+  padding: 1px 6px; border-radius: 3px;
+  margin: 2px 4px 2px 0; font-weight: 600;
 }
-#legend h3 { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; margin-bottom: 8px; color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 5px; }
-.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: 10px; color: #ccc; }
-.legend-circle { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.popup-detail { color: #ccc; font-size: 11px; margin-top: 2px; }
 
-/* ── Size legend (bottom-left) ── */
-#size-legend {
-  position: absolute; bottom: 14px; left: 14px;
+.popup-count {
+  background: var(--aa-red); color: white;
+  display: inline-block; padding: 2px 8px;
+  border-radius: 10px; font-size: 11px; font-weight: 700; margin-left: 6px;
+}
+
+#legend {
+  position: absolute; bottom: 20px; left: 20px;
   background: rgba(26,26,26,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  padding: 10px 14px; border-radius: 10px;
+  padding: 14px 16px; border-radius: 10px;
+  border: 1px solid #444; z-index: 1000; min-width: 190px;
+}
+#legend h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700; margin-bottom: 10px;
+  color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 6px;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 11px; color: #ccc; }
+.legend-circle { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+#size-legend {
+  position: absolute; bottom: 20px; right: 20px;
+  background: rgba(26,26,26,0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  padding: 14px 16px; border-radius: 10px;
   border: 1px solid #444; z-index: 1000;
 }
-#size-legend h3 { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; margin-bottom: 8px; color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 5px; }
-.size-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 10px; color: #ccc; }
+#size-legend h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700; margin-bottom: 10px;
+  color: var(--aa-white); border-bottom: 1px solid var(--aa-red); padding-bottom: 6px;
+}
+.size-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 11px; color: #ccc; }
 .size-dot { border-radius: 50%; background: rgba(237,28,36,0.4); border: 2px solid var(--aa-red); flex-shrink: 0; }
 
-/* ── Source bar ── */
 #source-bar {
   position: absolute; top: 10px; right: 10px;
-  background: rgba(26,26,26,0.9); padding: 6px 12px;
-  border-radius: 6px; font-size: 9px; color: #888;
-  z-index: 1001; border: 1px solid #444;
+  background: rgba(26,26,26,0.9); padding: 8px 14px;
+  border-radius: 6px; font-size: 10px; color: #888;
+  z-index: 1000; border: 1px solid #444;
 }
 #source-bar span { color: var(--aa-red); font-weight: 700; }
 
-/* ── Filter panel ── */
+.leaflet-tile-pane { filter: saturate(0.3) brightness(0.7); }
+
+.loc-label {
+  background: rgba(26,26,26,0.92) !important;
+  border: 1px solid var(--aa-red) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 12px !important; font-weight: 700 !important;
+  color: #fff !important; white-space: nowrap !important;
+  padding: 4px 10px !important;
+}
+.loc-label::before { border-top-color: var(--aa-red) !important; }
+
+.attack-marker { border-radius: 50%; border: 2px solid; opacity: 0.85; transition: opacity 0.2s, transform 0.2s; }
+.attack-marker:hover { opacity: 1; transform: scale(1.2); }
+
 #filter-panel {
-  position: absolute; top: 60px; left: 10px;
+  position: absolute; top: 10px; left: 10px;
   z-index: 1000; background: rgba(26,26,26,0.95);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 8px 12px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 10px 14px;
   border-radius: 8px; border: 1px solid #444;
 }
-#filter-panel h4 { font-family: 'Space Grotesk', sans-serif; font-size: 10px; color: #aaa; margin-bottom: 5px; }
+#filter-panel h4 { font-family: 'Space Grotesk', sans-serif; font-size: 11px; color: #aaa; margin-bottom: 6px; }
 
-/* ── Search ── */
-#search-wrap { position: relative; margin-bottom: 6px; }
+/* Search box */
+#search-wrap { position: relative; margin-bottom: 8px; }
 #search-input {
-  width: 180px; background: rgba(255,255,255,0.06); border: 1px solid #444;
-  border-radius: 6px; padding: 4px 24px 4px 8px;
+  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid #444;
+  border-radius: 6px; padding: 5px 28px 5px 10px;
   font-family: 'DM Sans', sans-serif; font-size: 11px; color: #fff;
-  outline: none; transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
+  outline: none; transition: border-color 0.2s;
+  -webkit-appearance: none; appearance: none;
 }
 #search-input::placeholder { color: #666; }
 #search-input:focus { border-color: var(--aa-red); }
-#search-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); color: #555; cursor: pointer; font-size: 12px; display: none; }
+#search-clear {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  color: #555; cursor: pointer; font-size: 13px; display: none;
+}
 #search-results {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 2000;
   background: #1a1a1a; border: 1px solid #444; border-radius: 6px;
-  margin-top: 2px; max-height: 140px; overflow-y: auto; display: none;
+  margin-top: 3px; max-height: 160px; overflow-y: auto; display: none;
 }
-.sr-item { padding: 5px 8px; font-size: 10px; color: #ccc; cursor: pointer; border-bottom: 1px solid #2a2a2a; transition: background 0.15s; }
+.sr-item {
+  padding: 6px 10px; font-size: 11px; color: #ccc; cursor: pointer;
+  border-bottom: 1px solid #2a2a2a; transition: background 0.15s;
+}
 .sr-item:last-child { border-bottom: none; }
 .sr-item:hover { background: rgba(237,28,36,0.12); color: #fff; }
 .sr-region { font-size: 9px; color: #666; }
 
 .filter-btn {
-  display: inline-block; padding: 2px 8px; margin: 2px;
-  border-radius: 10px; font-size: 9px;
+  display: inline-block; padding: 3px 10px; margin: 2px;
+  border-radius: 12px; font-size: 10px;
   font-family: 'DM Sans', sans-serif; cursor: pointer;
   border: 1px solid #555; background: transparent; color: #ccc; transition: all 0.2s;
 }
@@ -173,40 +296,83 @@ html, body {
 ::-webkit-scrollbar-track { background: #333; }
 ::-webkit-scrollbar-thumb { background: var(--aa-red); border-radius: 2px; }
 
-.leaflet-tile-pane { filter: saturate(0.3) brightness(0.7); }
+@-webkit-keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+/* Embed title overlay */
+#embed-title {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
+  background: linear-gradient(180deg, rgba(17,17,17,0.95) 0%, rgba(17,17,17,0.7) 80%, transparent 100%);
+  padding: 10px 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+.et-left { display: flex; align-items: center; gap: 10px; }
+.et-aa {
+  width: 28px; height: 28px; background: var(--aa-red); border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 900; font-size: 11px; color: #fff;
+}
+.et-h1 { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3; }
+.et-sub { font-size: 10px; color: #888; }
+.et-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+.et-stat { font-size: 10px; color: #aaa; font-family: 'Space Grotesk', sans-serif; }
+.et-stat span { font-weight: 800; font-size: 14px; color: var(--aa-red); margin-right: 2px; }
 
-.loc-label {
-  background: rgba(26,26,26,0.92) !important;
-  border: 1px solid var(--aa-red) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.6) !important;
-  font-family: 'Space Grotesk', sans-serif !important;
-  font-size: 11px !important; font-weight: 700 !important;
-  color: #fff !important; white-space: nowrap !important;
-  padding: 3px 8px !important;
+/* Adjust filter panel position for embed (below title) */
+#filter-panel { top: 65px !important; }
+#source-bar { top: auto !important; bottom: 6px !important; right: auto !important; left: 50% !important; transform: translateX(-50%) !important; }
+
+/* Adjust legends for embed — move up to avoid cutoff */
+#legend { bottom: 28px !important; }
+#size-legend { bottom: 28px !important; }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  #embed-title { padding: 8px 10px 16px; }
+  .et-h1 { font-size: 11px; }
+  .et-stats { gap: 8px; }
+  .et-stat span { font-size: 12px; }
+  #filter-panel { top: 58px !important; max-width: 200px; }
+  #legend { display: none; }
+  #size-legend { display: none; }
 }
 
-.attack-marker { border-radius: 50%; border: 2px solid; opacity: 0.85; transition: opacity 0.2s, transform 0.2s; }
-.attack-marker:hover { opacity: 1; transform: scale(1.2); }
+.marker-new .leaflet-interactive {
+  -webkit-animation: pulse-ring 0.6s ease-out;
+          animation: pulse-ring 0.6s ease-out;
+}
 </style>
 </head>
 <body>
 
 <div id="map-container">
   <div id="map"></div>
-
-  <!-- Mini stats overlay -->
-  <div id="mini-stats">
-    <div class="ms-item"><div class="ms-num" id="s-locations">69</div><div class="ms-label">Locations</div></div>
-    <div class="ms-item"><div class="ms-num" id="s-attacks">110+</div><div class="ms-label">Incidents</div></div>
-    <div class="ms-item"><div class="ms-num" style="color:#ff1744">7</div><div class="ms-label">Killed</div></div>
-    <div class="ms-item"><div class="ms-num">50+</div><div class="ms-label">Injured</div></div>
-    <div class="ms-item"><div class="ms-num">4</div><div class="ms-label">Displaced</div></div>
-    <div class="ms-item"><div class="ms-num">8</div><div class="ms-label">Outposts</div></div>
+  
+  <!-- Compact title + stats overlay for embed -->
+  <div id="embed-title">
+    <div class="et-left">
+      <div class="et-aa">AA</div>
+      <div>
+        <div class="et-h1">Israeli Settler Attacks in the Occupied West Bank</div>
+        <div class="et-sub">Feb 28 – Mar 22, 2026 | Interactive Map</div>
+      </div>
+    </div>
+    <div class="et-stats">
+      <div class="et-stat"><span style="color:#ff1744">7</span> Killed</div>
+      <div class="et-stat"><span>50+</span> Injured</div>
+      <div class="et-stat"><span>69</span> Locations</div>
+      <div class="et-stat"><span>110+</span> Incidents</div>
+    </div>
   </div>
-
-  <div id="source-bar">Source: <span>Anadolu Agency</span> | Feb 28 — Mar 22, 2026</div>
-
+  
+  <div id="source-bar">Source: <span>Anadolu Agency</span> | Data from official Palestinian & human rights sources</div>
+  
   <div id="filter-panel">
     <div id="search-wrap">
       <input id="search-input" type="text" placeholder="&#x1F50D; Search location..." autocomplete="off">
@@ -240,14 +406,26 @@ html, body {
 
   <div id="size-legend">
     <h3>Circle Size = No. of Incidents</h3>
-    <div class="size-row"><div class="size-dot" style="width:10px;height:10px"></div>1 incident</div>
-    <div class="size-row"><div class="size-dot" style="width:18px;height:18px"></div>2–3 incidents</div>
-    <div class="size-row"><div class="size-dot" style="width:26px;height:26px"></div>4+ incidents</div>
-    <div style="margin-top:6px;padding-top:5px;border-top:1px solid #444;font-size:9px;color:#888">Click marker for details<br>Hover to see name</div>
+    <div class="size-row"><div class="size-dot" style="width:12px;height:12px"></div>1 incident</div>
+    <div class="size-row"><div class="size-dot" style="width:20px;height:20px"></div>2–3 incidents</div>
+    <div class="size-row"><div class="size-dot" style="width:30px;height:30px"></div>4+ incidents</div>
+    <div style="margin-top:8px;padding-top:6px;border-top:1px solid #444;font-size:10px;color:#888">Click a marker for details<br>Hover to see the name</div>
   </div>
 </div>
 
 <script>
+// ── Timeline engine ──────────────────────────────────────────────
+const TL_START = new Date('2026-02-28');
+const TL_END   = new Date('2026-03-22');
+const TL_DAYS  = Math.round((TL_END - TL_START) / 86400000); // 22 days
+
+function parseDate(str) {
+  // "Feb 28", "Mar 7", etc.
+  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const [m, d] = str.split(' ');
+  return new Date(2026, months[m], parseInt(d));
+}
+
 const ATTACK_TYPES = {
   kill: { label: 'Killing', color: '#ff1744', tag: '#5e0009' },
   shoot: { label: 'Shooting', color: '#ff5722', tag: '#4e1500' },
@@ -527,10 +705,10 @@ locations.forEach(loc => {
   const radius = count === 1 ? 7 : count <= 3 ? 11 : 16;
   const dominant = getDominantType(loc.attacks);
   const color = ATTACK_TYPES[dominant]?.color || '#607d8b';
-
+  
   let popupHTML = `<div class="popup-title">${loc.name}</div>`;
   popupHTML += `<div class="popup-region">${loc.region} <span class="popup-count">${count} incident${count>1?'s':''}</span></div>`;
-
+  
   loc.attacks.forEach(a => {
     popupHTML += `<div class="popup-attack"><span class="popup-date">${a.date}, 2026</span> `;
     a.types.forEach(t => {
@@ -539,32 +717,33 @@ locations.forEach(loc => {
     });
     popupHTML += `<div class="popup-detail">${a.detail}</div></div>`;
   });
-
+  
   const marker = L.circleMarker([loc.lat, loc.lng], {
     radius, fillColor: color, color, weight: 2, opacity: 0.9, fillOpacity: 0.4, className: 'attack-marker'
   }).addTo(map);
-
-  marker.bindPopup(popupHTML, { maxWidth: 300, minWidth: 200 });
-
+  
+  marker.bindPopup(popupHTML, { maxWidth: 320, minWidth: 220 });
+  
   const labelText = count > 1 ? `${loc.name} (${count})` : loc.name;
   marker.bindTooltip(labelText, { permanent: false, direction: 'top', offset: [0, -radius - 2], className: 'loc-label' });
-
+  
   if (dominant === 'kill') {
     L.circleMarker([loc.lat, loc.lng], { radius: radius+6, fillColor:'#ff1744', color:'#ff1744', weight:1, opacity:0.3, fillOpacity:0.1 }).addTo(map);
   }
-
+  
   const allTypes = [];
   loc.attacks.forEach(a => a.types.forEach(t => { if (!allTypes.includes(t)) allTypes.push(t); }));
-  allMarkers.push({ marker, loc, allTypes, dominant, tlVisible: true });
+  allMarkers.push({ marker, loc, allTypes, dominant });
 });
 
-// ── Dynamic stats ────────────────────────────────────
+// ── Dynamic stats helpers ────────────────────────────────────
 const elSLoc = document.getElementById('s-locations');
 const elSAtk = document.getElementById('s-attacks');
 const BASE_LOCS = allMarkers.length;
 const BASE_ATKS = allMarkers.reduce((s, m) => s + m.loc.attacks.length, 0);
 
 function updateStats(filter) {
+  if (!elSLoc || !elSAtk) return;
   if (filter === 'all') {
     elSLoc.textContent = BASE_LOCS;
     elSAtk.textContent = BASE_ATKS + '+';
@@ -576,25 +755,28 @@ function updateStats(filter) {
   }
 }
 
-// ── Filter buttons ────────────────────────────────────
+// ── Filter buttons ────────────────────────────────────────────
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const filter = btn.dataset.filter;
-    allMarkers.forEach(({ marker, allTypes }) => {
+    allMarkers.forEach(({ marker, allTypes, tlVisible }) => {
+      if (!tlVisible) return;
       marker.setStyle(filter === 'all' || allTypes.includes(filter) ? { opacity:0.9, fillOpacity:0.4 } : { opacity:0.1, fillOpacity:0.05 });
     });
     updateStats(filter);
   });
 });
 
-// ── Search ────────────────────────────────────────────
+// ── Search ────────────────────────────────────────────────────
 const searchInput  = document.getElementById('search-input');
 const searchClear  = document.getElementById('search-clear');
 const searchResult = document.getElementById('search-results');
 
-function closeSearch() { searchResult.style.display = 'none'; }
+function closeSearch() {
+  searchResult.style.display = 'none';
+}
 
 searchInput.addEventListener('input', () => {
   const q = searchInput.value.trim().toLowerCase();
@@ -607,6 +789,7 @@ searchInput.addEventListener('input', () => {
   searchResult.innerHTML = hits.map((m, i) =>
     `<div class="sr-item" data-idx="${i}">${m.loc.name}<br><span class="sr-region">${m.loc.region}</span></div>`
   ).join('');
+  // store hits reference
   searchResult._hits = hits;
   searchResult.style.display = 'block';
 });
@@ -633,7 +816,7 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#search-wrap')) closeSearch();
 });
 
-// ── Region labels ─────────────────────────────────────
+
 const regions = [
   {name:"Northern Jordan Valley",lat:32.42,lng:35.52},{name:"Nablus",lat:32.24,lng:35.18},
   {name:"Ramallah",lat:31.92,lng:35.15},{name:"Hebron",lat:31.53,lng:34.98},
@@ -650,6 +833,32 @@ regions.forEach(r => {
     })
   }).addTo(map);
 });
+
+// ── Timeline playback engine ────────────────────────────────────
+// Pre-compute earliest attack date per marker
+allMarkers.forEach(m => {
+  m.tlVisible = true;
+  const earliest = m.loc.attacks.reduce((min, a) => {
+    const d = parseDate(a.date); return d < min ? d : min;
+  }, parseDate(m.loc.attacks[0].date));
+  m.earliestDate = earliest;
+});
+
+const totalIncidents = allMarkers.reduce((s, m) => s + m.loc.attacks.length, 0);
+
+// Timeline disabled in embed mode — show all markers
+allMarkers.forEach(m => { m.tlVisible = true; m.marker.setStyle({ opacity:0.9, fillOpacity:0.4 }); });
+
+</script>
+
+<script>
+// ── Notify parent of required height (for iframe auto-resize) ──
+function notifyParentHeight() {
+  var h = document.documentElement.scrollHeight || document.body.scrollHeight;
+  try { window.parent.postMessage({ iframeHeight: h, iframeId: 'covidIframe' }, '*'); } catch(e) {}
+}
+window.addEventListener('load', notifyParentHeight);
+window.addEventListener('resize', notifyParentHeight);
 </script>
 </body>
 </html>
