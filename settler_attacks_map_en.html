@@ -935,5 +935,15 @@ elWrap.addEventListener('touchstart', e => { dragging = true; tlStop(); applyDay
 document.addEventListener('touchmove',  e => { if (dragging) applyDay(posToDay(e.touches[0].clientX)); }, { passive: true });
 document.addEventListener('touchend',  () => { dragging = false; });
 </script>
+
+<script>
+// ── Notify parent of required height (for iframe auto-resize) ──
+function notifyParentHeight() {
+  var h = document.documentElement.scrollHeight || document.body.scrollHeight;
+  try { window.parent.postMessage({ iframeHeight: h, iframeId: 'covidIframe' }, '*'); } catch(e) {}
+}
+window.addEventListener('load', notifyParentHeight);
+window.addEventListener('resize', notifyParentHeight);
+</script>
 </body>
 </html>
