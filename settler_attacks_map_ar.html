@@ -36,6 +36,7 @@ body {
   color: var(--aa-white);
   overflow: hidden;
   height: 100vh;
+  height: -webkit-fill-available;
 }
 
 #header {
@@ -128,10 +129,7 @@ body {
   margin-top: 2px;
 }
 
-#map-container {
-  position: relative;
-  height: calc(100vh - 130px);
-}
+#map-container { position: relative; height: calc(100vh - 130px - 68px); }
 
 #map { height: 100%; width: 100%; }
 
@@ -213,6 +211,7 @@ body {
   right: 20px;
   background: rgba(26,26,26,0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid #444;
@@ -253,6 +252,7 @@ body {
   left: 20px;
   background: rgba(26,26,26,0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 14px 16px;
   border-radius: 10px;
   border: 1px solid #444;
@@ -342,6 +342,7 @@ body {
   z-index: 1000;
   background: rgba(26,26,26,0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid #444;
@@ -354,6 +355,35 @@ body {
   color: #aaa;
   margin-bottom: 6px;
 }
+
+/* Search box */
+#search-wrap { position: relative; margin-bottom: 8px; }
+#search-input {
+  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid #444;
+  border-radius: 6px; padding: 5px 10px 5px 28px;
+  font-family: 'Noto Naskh Arabic', sans-serif; font-size: 11px; color: #fff;
+  outline: none; transition: border-color 0.2s; direction: rtl;
+  -webkit-appearance: none; appearance: none;
+}
+#search-input::placeholder { color: #666; }
+#search-input:focus { border-color: var(--aa-red); }
+#search-clear {
+  position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+  color: #555; cursor: pointer; font-size: 13px; display: none;
+}
+#search-results {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 2000;
+  background: #1a1a1a; border: 1px solid #444; border-radius: 6px;
+  margin-top: 3px; max-height: 160px; overflow-y: auto; display: none;
+  direction: rtl;
+}
+.sr-item {
+  padding: 6px 10px; font-size: 11px; color: #ccc; cursor: pointer;
+  border-bottom: 1px solid #2a2a2a; transition: background 0.15s;
+}
+.sr-item:last-child { border-bottom: none; }
+.sr-item:hover { background: rgba(237,28,36,0.12); color: #fff; }
+.sr-region { font-size: 9px; color: #666; }
 
 .filter-btn {
   display: inline-block;
@@ -381,6 +411,55 @@ body {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #333; }
 ::-webkit-scrollbar-thumb { background: var(--aa-red); border-radius: 2px; }
+
+/* ── Timeline ── */
+#map-container { position: relative; height: calc(100vh - 130px - 68px); }
+
+#timeline {
+  position: relative; z-index: 1001;
+  background: var(--aa-dark); border-top: 2px solid var(--aa-red);
+  padding: 0 20px; height: 68px;
+  display: flex; align-items: center; gap: 14px;
+  direction: rtl;
+}
+#tl-controls { display: flex; gap: 6px; flex-shrink: 0; }
+.tl-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid #555; background: rgba(255,255,255,0.05);
+  color: #ccc; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 14px; transition: all 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+.tl-btn:hover { border-color: var(--aa-red); color: var(--aa-white); background: rgba(237,28,36,0.12); }
+.tl-btn.active { background: var(--aa-red); border-color: var(--aa-red); color: #fff; }
+#tl-date {
+  font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px;
+  font-weight: 700; color: var(--aa-red); white-space: nowrap;
+  min-width: 80px; text-align: center; flex-shrink: 0;
+}
+#tl-slider-wrap { flex: 1; position: relative; padding: 8px 0; cursor: pointer; }
+#tl-track { height: 4px; background: #333; border-radius: 2px; position: relative; }
+#tl-fill { height: 100%; background: var(--aa-red); border-radius: 2px; width: 0%; transition: width 0.15s linear; }
+#tl-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--aa-red); border: 2px solid #fff;
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  left: 0%; transition: left 0.15s linear; cursor: grab;
+  box-shadow: 0 0 6px rgba(237,28,36,0.6);
+}
+#tl-ticks { display: flex; justify-content: space-between; margin-top: 5px; }
+#tl-ticks span { font-size: 9px; color: #555; font-family: 'Noto Kufi Arabic', sans-serif; font-weight: 600; }
+#tl-speed {
+  font-family: 'Noto Kufi Arabic', sans-serif; font-size: 10px;
+  color: #888; flex-shrink: 0; cursor: pointer;
+  border: 1px solid #444; padding: 3px 8px; border-radius: 10px;
+  background: transparent; transition: all 0.2s; -webkit-appearance: none; appearance: none;
+}
+#tl-speed:hover { border-color: var(--aa-red); color: var(--aa-white); }
+#tl-counter {
+  font-family: 'Noto Kufi Arabic', sans-serif; font-size: 11px;
+  color: #888; flex-shrink: 0; white-space: nowrap; min-width: 90px; text-align: right;
+}
 </style>
 </head>
 <body>
@@ -405,12 +484,36 @@ body {
   <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">بؤر استيطانية جديدة</div></div>
 </div>
 
+<div id="timeline">
+  <div id="tl-controls">
+    <button class="tl-btn" id="tl-reset" title="إعادة تعيين">&#8635;</button>
+    <button class="tl-btn" id="tl-play" title="تشغيل">&#9654;</button>
+  </div>
+  <div id="tl-date">28/02</div>
+  <div id="tl-slider-wrap">
+    <div id="tl-track">
+      <div id="tl-fill"></div>
+      <div id="tl-thumb"></div>
+    </div>
+    <div id="tl-ticks">
+      <span>28 فبر</span><span>7 مار</span><span>14 مار</span><span>22 مار</span>
+    </div>
+  </div>
+  <span id="tl-counter">0 / 0 حادثة</span>
+  <button id="tl-speed">1×</button>
+</div>
+
 <div id="map-container">
   <div id="map"></div>
   
   <div id="source-bar">المصدر: <span>وكالة الأناضول</span> | بيانات من مصادر فلسطينية رسمية وحقوقية</div>
   
   <div id="filter-panel">
+    <div id="search-wrap">
+      <input id="search-input" type="text" placeholder="&#x1F50D; ابحث عن موقع..." autocomplete="off">
+      <span id="search-clear">&times;</span>
+      <div id="search-results"></div>
+    </div>
     <h4>تصفية حسب نوع الاعتداء:</h4>
     <button class="filter-btn active" data-filter="all">الكل</button>
     <button class="filter-btn" data-filter="kill">قتل</button>
@@ -611,7 +714,7 @@ const locations = [
     {date:"01/03",types:["beat"],detail:"مطاردة رعاة أغنام"},
     {date:"18/03",types:["beat","shoot","kidnap"],detail:"إصابة 4 واختطاف 3 فلسطينيين وإطلاق نار"}
   ]},
-  {name:"خربة جنبا",lat:32.382,lng:35.082,region:"مسافر يطا",attacks:[
+  {name:"خربة جنبا",lat:31.382,lng:35.082,region:"مسافر يطا",attacks:[
     {date:"03/03",types:["beat"],detail:"اعتداء على رعاة أغنام بقنابل صوت"}
   ]},
   {name:"واد الرخيم",lat:31.398,lng:35.138,region:"مسافر يطا",attacks:[
@@ -702,9 +805,11 @@ const locations = [
   ]}
 ];
 
-// Fix khirbet jinba coordinates
-locations.find(l => l.name === "خربة جنبا").lat = 31.382;
-locations.find(l => l.name === "خربة جنبا").lng = 35.082;
+// إصلاح إحداثيات خربة جنبا (كانت خاطئة في البيانات أعلاه)
+if (locations.find(l => l.name === "خربة جنبا")) {
+  locations.find(l => l.name === "خربة جنبا").lat = 31.382;
+  locations.find(l => l.name === "خربة جنبا").lng = 35.082;
+}
 
 // Initialize map
 const map = L.map('map', {
@@ -804,23 +909,86 @@ locations.forEach(loc => {
   allMarkers.push({ marker, loc, allTypes, dominant });
 });
 
-// Filter functionality
+// ── Dynamic stats helpers ────────────────────────────────────
+const elSLoc = document.getElementById('s-locations');
+const elSAtk = document.getElementById('s-attacks');
+const BASE_LOCS = allMarkers.length;
+const BASE_ATKS = allMarkers.reduce((s, m) => s + m.loc.attacks.length, 0);
+
+function updateStats(filter) {
+  if (filter === 'all') {
+    elSLoc.textContent = BASE_LOCS;
+    elSAtk.textContent = BASE_ATKS + '+';
+  } else {
+    const matchedLocs = allMarkers.filter(m => m.allTypes.includes(filter));
+    const matchedAtks = matchedLocs.reduce((s, m) => s + m.loc.attacks.filter(a => a.types.includes(filter)).length, 0);
+    elSLoc.textContent = matchedLocs.length;
+    elSAtk.textContent = matchedAtks;
+  }
+}
+
+// ── Filter buttons ────────────────────────────────────────────
 const filterBtns = document.querySelectorAll('.filter-btn');
 filterBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const filter = btn.dataset.filter;
-    
-    allMarkers.forEach(({ marker, allTypes }) => {
+    allMarkers.forEach(({ marker, allTypes, tlVisible }) => {
+      if (!tlVisible) return;
       if (filter === 'all' || allTypes.includes(filter)) {
         marker.setStyle({ opacity: 0.9, fillOpacity: 0.4 });
       } else {
         marker.setStyle({ opacity: 0.1, fillOpacity: 0.05 });
       }
     });
+    updateStats(filter);
   });
 });
+
+// ── Search ────────────────────────────────────────────────────
+const searchInput  = document.getElementById('search-input');
+const searchClear  = document.getElementById('search-clear');
+const searchResult = document.getElementById('search-results');
+
+function closeSearch() { searchResult.style.display = 'none'; }
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  searchClear.style.display = q ? 'block' : 'none';
+  if (!q) { closeSearch(); return; }
+  const hits = allMarkers.filter(m =>
+    m.loc.name.includes(q) || m.loc.region.includes(q)
+  ).slice(0, 8);
+  if (!hits.length) { closeSearch(); return; }
+  searchResult.innerHTML = hits.map((m, i) =>
+    `<div class="sr-item" data-idx="${i}">${m.loc.name}<br><span class="sr-region">${m.loc.region}</span></div>`
+  ).join('');
+  searchResult._hits = hits;
+  searchResult.style.display = 'block';
+});
+
+searchResult.addEventListener('click', e => {
+  const item = e.target.closest('.sr-item');
+  if (!item) return;
+  const m = searchResult._hits[parseInt(item.dataset.idx)];
+  map.setView([m.loc.lat, m.loc.lng], 12, { animate: true });
+  setTimeout(() => m.marker.openPopup(), 400);
+  searchInput.value = m.loc.name;
+  searchClear.style.display = 'block';
+  closeSearch();
+});
+
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchClear.style.display = 'none';
+  closeSearch();
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#search-wrap')) closeSearch();
+});
+
 
 // Region labels
 const regions = [
@@ -845,6 +1013,132 @@ regions.forEach(r => {
     })
   }).addTo(map);
 });
+
+// ── Timeline playback engine (Arabic) ──────────────────────────
+const TL_START = new Date('2026-02-28');
+const TL_END   = new Date('2026-03-22');
+const TL_DAYS  = Math.round((TL_END - TL_START) / 86400000); // 22
+
+function parseDateAr(str) {
+  // format: "28/02", "01/03" etc.
+  const parts = str.split('/');
+  return new Date(2026, parseInt(parts[1]) - 1, parseInt(parts[0]));
+}
+
+function formatDateAr(d) {
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return dd + '/' + mm;
+}
+
+// Pre-compute earliest date per marker
+allMarkers.forEach(m => {
+  m.tlVisible = true;
+  const earliest = m.loc.attacks.reduce((min, a) => {
+    const d = parseDateAr(a.date); return d < min ? d : min;
+  }, parseDateAr(m.loc.attacks[0].date));
+  m.earliestDate = earliest;
+});
+
+const totalIncidents = allMarkers.reduce((s, m) => s + m.loc.attacks.length, 0);
+
+let tlDay = 0;
+let tlPlaying = false;
+let tlInterval = null;
+let tlSpeedIdx = 0;
+const TL_SPEEDS = [1, 2, 4];
+const TL_SPEED_LABELS = ['1×', '2×', '4×'];
+
+const elPlay    = document.getElementById('tl-play');
+const elReset   = document.getElementById('tl-reset');
+const elDate    = document.getElementById('tl-date');
+const elFill    = document.getElementById('tl-fill');
+const elThumb   = document.getElementById('tl-thumb');
+const elCounter = document.getElementById('tl-counter');
+const elSpeed   = document.getElementById('tl-speed');
+const elWrap    = document.getElementById('tl-slider-wrap');
+const elTrack   = document.getElementById('tl-track');
+
+function dayToDate(day) {
+  const d = new Date(TL_START);
+  d.setDate(d.getDate() + day);
+  return d;
+}
+
+function applyDay(day) {
+  tlDay = Math.max(0, Math.min(day, TL_DAYS));
+  const cur = dayToDate(tlDay);
+  elDate.textContent = formatDateAr(cur);
+
+  const pct = (tlDay / TL_DAYS) * 100;
+  elFill.style.width = pct + '%';
+  elThumb.style.left = pct + '%';
+
+  let incidents = 0;
+  allMarkers.forEach(m => {
+    const show = m.earliestDate <= cur;
+    m.tlVisible = show;
+    if (show) {
+      m.marker.setStyle({ opacity: 0.9, fillOpacity: 0.4 });
+      incidents += m.loc.attacks.filter(a => parseDateAr(a.date) <= cur).length;
+    } else {
+      m.marker.setStyle({ opacity: 0, fillOpacity: 0 });
+    }
+  });
+  elCounter.textContent = incidents + ' / ' + totalIncidents + ' حادثة';
+}
+
+function tlStop() {
+  tlPlaying = false;
+  clearInterval(tlInterval);
+  tlInterval = null;
+  elPlay.innerHTML = '&#9654;';
+  elPlay.classList.remove('active');
+}
+
+function tlStart() {
+  if (tlDay >= TL_DAYS) applyDay(0);
+  tlPlaying = true;
+  elPlay.innerHTML = '&#9646;&#9646;';
+  elPlay.classList.add('active');
+  const ms = (TL_SPEEDS[tlSpeedIdx] * 1000) / 2;
+  tlInterval = setInterval(() => {
+    if (tlDay >= TL_DAYS) { tlStop(); return; }
+    applyDay(tlDay + 1);
+  }, ms);
+}
+
+elPlay.addEventListener('click', () => { tlPlaying ? tlStop() : tlStart(); });
+
+elReset.addEventListener('click', () => {
+  tlStop();
+  allMarkers.forEach(m => { m.tlVisible = true; m.marker.setStyle({ opacity: 0.9, fillOpacity: 0.4 }); });
+  tlDay = 0;
+  elFill.style.width = '0%';
+  elThumb.style.left = '0%';
+  elDate.textContent = formatDateAr(TL_START);
+  elCounter.textContent = '0 / ' + totalIncidents + ' حادثة';
+});
+
+elSpeed.addEventListener('click', () => {
+  tlSpeedIdx = (tlSpeedIdx + 1) % TL_SPEEDS.length;
+  elSpeed.textContent = TL_SPEED_LABELS[tlSpeedIdx];
+  if (tlPlaying) { tlStop(); tlStart(); }
+});
+
+// Scrubber — mouse & touch (Safari iOS compatible)
+let dragging = false;
+function posToDay(clientX) {
+  const rect = elTrack.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  return Math.round(ratio * TL_DAYS);
+}
+elWrap.addEventListener('mousedown', e => { dragging = true; tlStop(); applyDay(posToDay(e.clientX)); });
+document.addEventListener('mousemove', e => { if (dragging) applyDay(posToDay(e.clientX)); });
+document.addEventListener('mouseup', () => { dragging = false; });
+elWrap.addEventListener('touchstart', e => { dragging = true; tlStop(); applyDay(posToDay(e.touches[0].clientX)); }, { passive: true });
+document.addEventListener('touchmove', e => { if (dragging) applyDay(posToDay(e.touches[0].clientX)); }, { passive: true });
+document.addEventListener('touchend', () => { dragging = false; });
 </script>
 </body>
 </html>
