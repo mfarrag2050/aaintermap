@@ -18,14 +18,14 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { height: 100%; }
+html { height: 2000px; overflow: hidden; }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--aa-darker);
   color: var(--aa-white);
   overflow: hidden;
-  height: 100%;
+  height: 2000px;
 }
 
 #header {
@@ -86,7 +86,7 @@ body {
 
 .stat-label { font-size: 10px; color: #888; margin-top: 2px; }
 
-#map-container { position: relative; height: 100%; }
+#map-container { position: relative; height: 1071px; }
 
 /* ── Timeline ── */
 #timeline {
@@ -255,34 +255,6 @@ body {
 }
 #filter-panel h4 { font-family: 'Space Grotesk', sans-serif; font-size: 11px; color: #aaa; margin-bottom: 6px; }
 
-/* Search box */
-#search-wrap { position: relative; margin-bottom: 8px; }
-#search-input {
-  width: 100%; background: rgba(255,255,255,0.06); border: 1px solid #444;
-  border-radius: 6px; padding: 5px 28px 5px 10px;
-  font-family: 'DM Sans', sans-serif; font-size: 11px; color: #fff;
-  outline: none; transition: border-color 0.2s;
-  -webkit-appearance: none; appearance: none;
-}
-#search-input::placeholder { color: #666; }
-#search-input:focus { border-color: var(--aa-red); }
-#search-clear {
-  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
-  color: #555; cursor: pointer; font-size: 13px; display: none;
-}
-#search-results {
-  position: absolute; top: 100%; left: 0; right: 0; z-index: 2000;
-  background: #1a1a1a; border: 1px solid #444; border-radius: 6px;
-  margin-top: 3px; max-height: 160px; overflow-y: auto; display: none;
-}
-.sr-item {
-  padding: 6px 10px; font-size: 11px; color: #ccc; cursor: pointer;
-  border-bottom: 1px solid #2a2a2a; transition: background 0.15s;
-}
-.sr-item:last-child { border-bottom: none; }
-.sr-item:hover { background: rgba(237,28,36,0.12); color: #fff; }
-.sr-region { font-size: 9px; color: #666; }
-
 .filter-btn {
   display: inline-block; padding: 3px 10px; margin: 2px;
   border-radius: 12px; font-size: 10px;
@@ -304,7 +276,12 @@ body {
   0%   { transform: scale(1);   opacity: 0.6; }
   100% { transform: scale(2.2); opacity: 0; }
 }
-/* Embed title overlay */
+.marker-new .leaflet-interactive {
+  -webkit-animation: pulse-ring 0.6s ease-out;
+          animation: pulse-ring 0.6s ease-out;
+}
+
+/* ── Embed overlay for AA website ── */
 #embed-title {
   position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
   background: linear-gradient(180deg, rgba(17,17,17,0.95) 0%, rgba(17,17,17,0.7) 80%, transparent 100%);
@@ -324,37 +301,23 @@ body {
 .et-stat { font-size: 10px; color: #aaa; font-family: 'Space Grotesk', sans-serif; }
 .et-stat span { font-weight: 800; font-size: 14px; color: var(--aa-red); margin-right: 2px; }
 
-/* Adjust filter panel position for embed (below title) */
-#filter-panel { top: 65px !important; }
-#source-bar { top: auto !important; bottom: 6px !important; right: auto !important; left: 50% !important; transform: translateX(-50%) !important; }
-
-/* Adjust legends for embed — move up to avoid cutoff */
-#legend { bottom: 28px !important; }
-#size-legend { bottom: 28px !important; }
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-  #embed-title { padding: 8px 10px 16px; }
-  .et-h1 { font-size: 11px; }
-  .et-stats { gap: 8px; }
-  .et-stat span { font-size: 12px; }
-  #filter-panel { top: 58px !important; max-width: 200px; }
-  #legend { display: none; }
-  #size-legend { display: none; }
-}
-
-.marker-new .leaflet-interactive {
-  -webkit-animation: pulse-ring 0.6s ease-out;
-          animation: pulse-ring 0.6s ease-out;
-}
+/* Position adjustments for AA embed */
+#filter-panel { top: 55px !important; }
+#source-bar { top: auto !important; bottom: 8px !important; right: auto !important; left: 50% !important; transform: translateX(-50%) !important; }
+#legend { bottom: 30px !important; }
+#size-legend { bottom: 30px !important; }
 </style>
 </head>
 <body>
 
+<!-- 173px top spacer — gets cropped by AA's margin-top: -173px -->
+<div id="top-spacer" style="height:173px; background:#111;"></div>
+
+<!-- Visible area: exactly 1071px -->
 <div id="map-container">
   <div id="map"></div>
   
-  <!-- Compact title + stats overlay for embed -->
+  <!-- Compact title + stats overlay -->
   <div id="embed-title">
     <div class="et-left">
       <div class="et-aa">AA</div>
@@ -374,11 +337,6 @@ body {
   <div id="source-bar">Source: <span>Anadolu Agency</span> | Data from official Palestinian & human rights sources</div>
   
   <div id="filter-panel">
-    <div id="search-wrap">
-      <input id="search-input" type="text" placeholder="&#x1F50D; Search location..." autocomplete="off">
-      <span id="search-clear">&times;</span>
-      <div id="search-results"></div>
-    </div>
     <h4>Filter by attack type:</h4>
     <button class="filter-btn active" data-filter="all">All</button>
     <button class="filter-btn" data-filter="kill">Killing</button>
@@ -412,6 +370,9 @@ body {
     <div style="margin-top:8px;padding-top:6px;border-top:1px solid #444;font-size:10px;color:#888">Click a marker for details<br>Hover to see the name</div>
   </div>
 </div>
+
+<!-- 756px bottom spacer — gets cropped by AA's margin-bottom: -756px -->
+<div id="bottom-spacer" style="height:756px; background:#111;"></div>
 
 <script>
 // ── Timeline engine ──────────────────────────────────────────────
@@ -769,53 +730,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// ── Search ────────────────────────────────────────────────────
-const searchInput  = document.getElementById('search-input');
-const searchClear  = document.getElementById('search-clear');
-const searchResult = document.getElementById('search-results');
-
-function closeSearch() {
-  searchResult.style.display = 'none';
-}
-
-searchInput.addEventListener('input', () => {
-  const q = searchInput.value.trim().toLowerCase();
-  searchClear.style.display = q ? 'block' : 'none';
-  if (!q) { closeSearch(); return; }
-  const hits = allMarkers.filter(m =>
-    m.loc.name.toLowerCase().includes(q) || m.loc.region.toLowerCase().includes(q)
-  ).slice(0, 8);
-  if (!hits.length) { closeSearch(); return; }
-  searchResult.innerHTML = hits.map((m, i) =>
-    `<div class="sr-item" data-idx="${i}">${m.loc.name}<br><span class="sr-region">${m.loc.region}</span></div>`
-  ).join('');
-  // store hits reference
-  searchResult._hits = hits;
-  searchResult.style.display = 'block';
-});
-
-searchResult.addEventListener('click', e => {
-  const item = e.target.closest('.sr-item');
-  if (!item) return;
-  const idx = parseInt(item.dataset.idx);
-  const m = searchResult._hits[idx];
-  map.setView([m.loc.lat, m.loc.lng], 12, { animate: true });
-  setTimeout(() => m.marker.openPopup(), 400);
-  searchInput.value = m.loc.name;
-  searchClear.style.display = 'block';
-  closeSearch();
-});
-
-searchClear.addEventListener('click', () => {
-  searchInput.value = '';
-  searchClear.style.display = 'none';
-  closeSearch();
-});
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('#search-wrap')) closeSearch();
-});
-
 
 const regions = [
   {name:"Northern Jordan Valley",lat:32.42,lng:35.52},{name:"Nablus",lat:32.24,lng:35.18},
@@ -848,7 +762,6 @@ const totalIncidents = allMarkers.reduce((s, m) => s + m.loc.attacks.length, 0);
 
 // Timeline disabled in embed mode — show all markers
 allMarkers.forEach(m => { m.tlVisible = true; m.marker.setStyle({ opacity:0.9, fillOpacity:0.4 }); });
-
 </script>
 
 <script>
