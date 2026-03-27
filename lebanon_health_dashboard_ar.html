@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>القطاع الصحي في لبنان تحت العدوان</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --aa-red: #ED1C24;
+  --aa-dark: #1a1a1a;
+  --aa-darker: #111111;
+  --aa-white: #ffffff;
+  --aa-gold: #f5a623;
+  --aa-red-dim: rgba(237, 28, 36, 0.15);
+  --aa-red-glow: rgba(237, 28, 36, 0.3);
+  --ui-border: #444444;
+  --ui-text-muted: #888888;
+  --ui-panel-bg: rgba(26,26,26,0.95);
+  --ui-bg-deep: #0a0a0a;
+  --ui-card-hover: #222222;
+  --font-ui: 'Noto Kufi Arabic', sans-serif;
+  --font-body: 'Noto Naskh Arabic', serif;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: var(--ui-bg-deep);
+  color: var(--aa-white);
+  font-family: var(--font-body);
+  direction: rtl;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* === HERO === */
+.hero {
+  position: relative;
+  padding: 40px 24px 30px;
+  background: linear-gradient(180deg, #0f0f0f 0%, var(--ui-bg-deep) 100%);
+  border-bottom: 1px solid var(--ui-border);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--aa-red-dim) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--aa-red);
+  margin-bottom: 12px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-label::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: var(--aa-red);
+}
+.hero-title {
+  font-family: var(--font-ui);
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 900;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  position: relative;
+}
+.hero-subtitle {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ui-text-muted);
+  line-height: 1.7;
+  max-width: 700px;
+  position: relative;
+}
+
+/* === STATS === */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--ui-border);
+  border-bottom: 1px solid var(--ui-border);
+}
+.stat-cell {
+  background: var(--ui-panel-bg);
+  backdrop-filter: blur(8px);
+  padding: 24px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.stat-cell:hover { background: var(--ui-card-hover); }
+.stat-cell::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0; left: 0;
+  height: 3px;
+  background: var(--aa-red);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+.stat-cell:hover::after { transform: scaleX(1); }
+.stat-icon { font-size: 20px; margin-bottom: 8px; opacity: 0.9; }
+.stat-number {
+  font-family: var(--font-ui);
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 900;
+  color: var(--aa-white);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-number.red { color: var(--aa-red); }
+.stat-number.amber { color: var(--aa-red); }
+.stat-number.blue { color: var(--aa-gold); }
+.stat-label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-text-muted);
+}
+
+/* === SECTION === */
+.section {
+  padding: 32px 24px;
+  border-bottom: 1px solid var(--ui-border);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.section-dot {
+  width: 8px; height: 8px;
+  background: var(--aa-red);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* === MAP === */
+#hospital-map {
+  width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  border: 1px solid var(--ui-border);
+  z-index: 1;
+}
+.leaflet-tile-pane { filter: saturate(0.3) brightness(0.7); }
+.leaflet-popup-content-wrapper {
+  background: var(--aa-dark) !important;
+  color: var(--aa-white) !important;
+  border: 1px solid var(--aa-red) !important;
+  border-radius: 8px !important;
+  direction: rtl;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+}
+.leaflet-popup-tip { background: var(--aa-dark) !important; }
+.leaflet-popup-content { margin: 12px 16px !important; font-size: 13px; line-height: 1.7; }
+.popup-name { font-weight: 800; color: var(--aa-red); font-size: 14px; margin-bottom: 4px; }
+.popup-region { color: #888; font-size: 11px; margin-bottom: 8px; }
+.popup-stat { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; }
+.popup-stat-label { color: #888; }
+.popup-stat-value { color: var(--aa-gold); font-weight: 700; }
+.map-legend {
+  background: var(--ui-panel-bg) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  font-size: 11px;
+  color: var(--aa-white);
+  direction: rtl;
+}
+.map-legend-title { font-weight: 700; margin-bottom: 6px; color: #888; }
+.map-legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.legend-circle { width: 12px; height: 12px; border-radius: 50%; border: 2px solid; flex-shrink: 0; }
+
+/* === HOSPITAL CARDS === */
+.hospital-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 600px) { .hospital-grid { grid-template-columns: 1fr 1fr; } }
+.hospital-card {
+  background: var(--ui-panel-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.hospital-card:hover { border-color: rgba(237, 28, 36, 0.4); }
+.hospital-card-header {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--aa-red-dim) 0%, transparent 60%);
+  border-bottom: 1px solid var(--ui-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.hospital-name { font-family: var(--font-ui); font-size: 15px; font-weight: 800; }
+.hospital-badge {
+  font-family: var(--font-ui); font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--aa-red-dim); color: var(--aa-red);
+  border: 1px solid rgba(237, 28, 36, 0.3);
+}
+.hospital-body { padding: 16px 20px; }
+.hospital-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-ui); font-size: 12px; color: var(--ui-text-muted);
+  margin-bottom: 16px;
+}
+.hospital-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.metric {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ui-border);
+  border-radius: 8px; padding: 12px; text-align: center;
+}
+.metric-value { font-family: var(--font-ui); font-size: 22px; font-weight: 900; color: var(--aa-gold); }
+.metric-label { font-family: var(--font-ui); font-size: 10px; font-weight: 600; color: var(--ui-text-muted); margin-top: 4px; }
+.hospital-quote {
+  font-family: var(--font-body); font-size: 14px; line-height: 1.8;
+  color: var(--ui-text-muted); padding: 12px 16px;
+  background: rgba(237, 28, 36, 0.05); border-radius: 8px;
+  border-right: 3px solid var(--aa-red);
+}
+.hospital-quote .quote-attr {
+  display: block; font-family: var(--font-ui); font-size: 11px;
+  color: var(--ui-text-muted); margin-top: 8px; font-weight: 600;
+}
+
+/* === CHALLENGES === */
+.challenges-list { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 500px) { .challenges-list { grid-template-columns: 1fr 1fr; } }
+.challenge-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px; background: var(--ui-panel-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border); border-radius: 10px;
+  transition: border-color 0.3s;
+}
+.challenge-item:hover { border-color: rgba(237, 28, 36, 0.3); }
+.challenge-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.challenge-text { font-family: var(--font-body); font-size: 13px; line-height: 1.7; color: var(--ui-text-muted); }
+.challenge-text strong { color: var(--aa-white); font-weight: 700; }
+
+/* === TIMELINE === */
+.timeline { position: relative; padding-right: 20px; }
+.timeline::before {
+  content: ''; position: absolute; right: 6px; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(180deg, var(--aa-red), var(--ui-border));
+}
+.tl-item {
+  position: relative; padding: 0 24px 24px 0;
+  opacity: 0; transform: translateY(12px);
+  animation: fadeUp 0.5s ease forwards;
+}
+.tl-item:nth-child(1) { animation-delay: 0.1s; }
+.tl-item:nth-child(2) { animation-delay: 0.25s; }
+.tl-item:nth-child(3) { animation-delay: 0.4s; }
+.tl-item:nth-child(4) { animation-delay: 0.55s; }
+.tl-item:nth-child(5) { animation-delay: 0.7s; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+.tl-dot {
+  position: absolute; right: 0; top: 4px;
+  width: 14px; height: 14px;
+  background: var(--ui-bg-deep); border: 3px solid var(--aa-red);
+  border-radius: 50%; z-index: 1;
+}
+.tl-dot.critical { background: var(--aa-red); box-shadow: 0 0 12px var(--aa-red-glow); }
+.tl-date { font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: var(--aa-gold); margin-bottom: 6px; }
+.tl-text { font-family: var(--font-body); font-size: 14px; line-height: 1.7; color: var(--ui-text-muted); }
+.tl-text strong { color: var(--aa-white); }
+
+/* === WHO ALERT === */
+.who-alert {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  border-radius: 12px; padding: 20px;
+  display: flex; gap: 16px; align-items: flex-start;
+}
+.who-icon { font-size: 28px; flex-shrink: 0; }
+.who-content { flex: 1; }
+.who-org { font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: var(--aa-gold); margin-bottom: 8px; letter-spacing: 1px; }
+.who-text { font-family: var(--font-body); font-size: 14px; line-height: 1.8; color: var(--ui-text-muted); }
+.who-speaker { font-family: var(--font-ui); font-size: 11px; color: var(--ui-text-muted); margin-top: 10px; font-weight: 600; }
+
+/* === SOURCE === */
+.source-bar {
+  padding: 16px 24px; background: #080808;
+  border-top: 1px solid var(--ui-border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+.source-text { font-family: var(--font-ui); font-size: 10px; color: var(--ui-text-muted); font-weight: 600; }
+.source-logo { font-family: var(--font-ui); font-size: 11px; font-weight: 900; color: var(--aa-red); letter-spacing: 1px; }
+
+/* === ANIMATIONS === */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">تقرير تفاعلي</div>
+  <h1 class="hero-title">القطاع الصحي في لبنان تحت العدوان الإسرائيلي</h1>
+  <p class="hero-subtitle">مستشفيات البقاع والجنوب تستنفر لمداواة الجرحى وسط نقص الإمدادات واتساع رقعة النزوح</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-cell">
+    <div class="stat-icon">🔴</div>
+    <div class="stat-number red" data-target="1116">0</div>
+    <div class="stat-label">شهيد</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-icon">🟠</div>
+    <div class="stat-number amber" data-target="3229">0</div>
+    <div class="stat-label">جريح</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-icon">🔵</div>
+    <div class="stat-number blue" data-target="1000000">0</div>
+    <div class="stat-label">نازح</div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="section reveal">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">مواقع المستشفيات على الخريطة</div>
+  </div>
+  <div id="hospital-map"></div>
+</div>
+
+<!-- HOSPITALS -->
+<div class="section reveal">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">المستشفيات في خطوط المواجهة</div>
+  </div>
+  <div class="hospital-grid">
+    <div class="hospital-card">
+      <div class="hospital-card-header">
+        <div class="hospital-name">🏥 مستشفى صيدا الحكومي</div>
+        <div class="hospital-badge">جنوب لبنان</div>
+      </div>
+      <div class="hospital-body">
+        <div class="hospital-meta"><span>📍</span><span>مدينة صيدا — خط الدفاع الثاني</span></div>
+        <div class="hospital-metrics">
+          <div class="metric">
+            <div class="metric-value">100-70</div>
+            <div class="metric-label">مريض يومياً</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value">100~</div>
+            <div class="metric-label">سرير متوفر</div>
+          </div>
+        </div>
+        <div class="hospital-quote">
+          نعمل كخط دفاع ثانٍ ونستقبل يومياً ما بين 70 إلى 100 مريض... القدرة الاستيعابية باتت شبه ممتلئة
+          <span class="quote-attr">— د. أحمد الصمدي، مدير المستشفى</span>
+        </div>
+      </div>
+    </div>
+    <div class="hospital-card">
+      <div class="hospital-card-header">
+        <div class="hospital-name">🏥 مستشفى بعلبك الحكومي</div>
+        <div class="hospital-badge">شرق لبنان</div>
+      </div>
+      <div class="hospital-body">
+        <div class="hospital-meta"><span>📍</span><span>مدينة بعلبك — جهوزية تامة</span></div>
+        <div class="hospital-metrics">
+          <div class="metric">
+            <div class="metric-value" style="font-size:16px; color: var(--aa-gold);">نساء وأطفال</div>
+            <div class="metric-label">غالبية الجرحى</div>
+          </div>
+          <div class="metric">
+            <div class="metric-value" style="font-size:16px; color: var(--aa-red);">بالغة</div>
+            <div class="metric-label">بعض الإصابات</div>
+          </div>
+        </div>
+        <div class="hospital-quote">
+          غالبية الجرحى التي تصلنا هي من النساء والأطفال وبعض الحالات بالغة... نعمل على إجراء العمليات بشكل سريع
+          <span class="quote-attr">— عباس شكر، مدير المستشفى</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLENGES -->
+<div class="section reveal">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">التحديات الرئيسية</div>
+  </div>
+  <div class="challenges-list">
+    <div class="challenge-item"><div class="challenge-icon">💊</div><div class="challenge-text"><strong>نقص الأدوية</strong> — استهلاك مرتفع وصعوبة تأمين الإمدادات من بيروت والبقاع</div></div>
+    <div class="challenge-item"><div class="challenge-icon">🛏️</div><div class="challenge-text"><strong>طاقة استيعابية محدودة</strong> — الأسرّة شبه ممتلئة مع تزايد الحاجة للتوسع</div></div>
+    <div class="challenge-item"><div class="challenge-icon">🚑</div><div class="challenge-text"><strong>تعثر سلاسل الإمداد</strong> — تعذر وصول شركات الأدوية للمناطق الجنوبية والبقاعية</div></div>
+    <div class="challenge-item"><div class="challenge-icon">⚕️</div><div class="challenge-text"><strong>سقوط كوادر طبية</strong> — استشهاد مسعفين وممرضين وأطباء خلال التصعيد</div></div>
+  </div>
+</div>
+
+<!-- TIMELINE -->
+<div class="section reveal">
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-title">تسلسل الأحداث</div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-dot critical"></div><div class="tl-date">28 فبراير 2025</div><div class="tl-text"><strong>بدء العدوان الأمريكي الإسرائيلي على إيران</strong> — خلّف مئات القتلى بينهم المرشد الأعلى علي خامنئي</div></div>
+    <div class="tl-item"><div class="tl-dot critical"></div><div class="tl-date">2 مارس 2025</div><div class="tl-text"><strong>حزب الله يهاجم مواقع عسكرية إسرائيلية</strong> رداً على الاعتداءات المتواصلة واغتيال المرشد الإيراني، وإسرائيل تشن <strong>عدواناً جديداً على لبنان</strong> عبر غارات على الضاحية الجنوبية لبيروت ومناطق الجنوب والشرق</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">3 مارس 2025</div><div class="tl-text">بدء <strong>توغل بري إسرائيلي محدود</strong> في الجنوب اللبناني</div></div>
+    <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">11 مارس 2025</div><div class="tl-text">ممثل <strong>منظمة الصحة العالمية</strong> يحذر من تزايد الضغوط على القطاع الصحي في لبنان</div></div>
+    <div class="tl-item"><div class="tl-dot critical"></div><div class="tl-date">27 مارس 2025</div><div class="tl-text"><strong>1,116 شهيداً و3,229 جريحاً</strong> وأكثر من مليون نازح — مستشفيات الجنوب والبقاع تعمل فوق طاقتها</div></div>
+  </div>
+</div>
+
+<!-- WHO ALERT -->
+<div class="section reveal">
+  <div class="who-alert">
+    <div class="who-icon">⚠️</div>
+    <div class="who-content">
+      <div class="who-org">تحذير منظمة الصحة العالمية</div>
+      <div class="who-text">لبنان يعاني من نظام رعاية صحية ضعيف بسبب سنوات من الأزمة الاقتصادية وفقدان القوى العاملة والصراعات السابقة، ونظام الرعاية الصحية يواجه تحديات خطيرة بسبب العدوان الإسرائيلي</div>
+      <div class="who-speaker">— عبد الناصر أبو بكر، ممثل المنظمة في لبنان | 11 مارس 2025</div>
+    </div>
+  </div>
+</div>
+
+<!-- SOURCE -->
+<div class="source-bar">
+  <div class="source-text">المصدر: وكالة الأناضول — بيانات السلطات اللبنانية ومنظمة الصحة العالمية</div>
+  <div class="source-logo">AA</div>
+</div>
+
+<script>
+// === LEAFLET MAP ===
+(function() {
+  var map = L.map('hospital-map', {
+    center: [33.75, 35.75],
+    zoom: 8,
+    zoomControl: false,
+    attributionControl: false
+  });
+
+  L.control.zoom({ position: 'topleft' }).addTo(map);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap © CARTO',
+    maxZoom: 18
+  }).addTo(map);
+
+  var hospitals = [
+    {
+      name: 'مستشفى صيدا الحكومي',
+      lat: 33.5585, lng: 35.3750,
+      region: 'جنوب لبنان',
+      status: 'خط الدفاع الثاني',
+      patients: '70-100 مريض يومياً',
+      beds: '~100 سرير',
+      director: 'د. أحمد الصمدي'
+    },
+    {
+      name: 'مستشفى بعلبك الحكومي',
+      lat: 34.0047, lng: 36.2110,
+      region: 'شرق لبنان (البقاع)',
+      status: 'جهوزية تامة',
+      patients: 'نساء وأطفال غالباً',
+      beds: 'إصابات بالغة',
+      director: 'عباس شكر'
+    }
+  ];
+
+  hospitals.forEach(function(h) {
+    // Pulse ring
+    L.circleMarker([h.lat, h.lng], {
+      radius: 22, fillColor: '#ED1C24', color: '#ED1C24',
+      weight: 1, opacity: 0.25, fillOpacity: 0.08
+    }).addTo(map);
+
+    // Main marker
+    var marker = L.circleMarker([h.lat, h.lng], {
+      radius: 10, fillColor: '#ED1C24', color: '#ED1C24',
+      weight: 2.5, opacity: 0.9, fillOpacity: 0.5
+    }).addTo(map);
+
+    marker.bindPopup(
+      '<div class="popup-name">' + h.name + '</div>' +
+      '<div class="popup-region">' + h.region + '</div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">الحالة</span><span class="popup-stat-value">' + h.status + '</span></div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">الجرحى</span><span class="popup-stat-value">' + h.patients + '</span></div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">السعة / الإصابات</span><span class="popup-stat-value">' + h.beds + '</span></div>' +
+      '<div class="popup-stat"><span class="popup-stat-label">المدير</span><span class="popup-stat-value">' + h.director + '</span></div>',
+      { maxWidth: 280, autoPan: true }
+    );
+
+    marker.bindTooltip(h.name, {
+      permanent: false, direction: 'top',
+      offset: [0, -14], className: 'loc-label'
+    });
+  });
+
+  // Legend
+  var legend = L.control({ position: 'bottomright' });
+  legend.onAdd = function() {
+    var div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML =
+      '<div class="map-legend-title">دليل الخريطة</div>' +
+      '<div class="map-legend-item"><div class="legend-circle" style="background:rgba(237,28,36,0.5);border-color:#ED1C24;"></div><span>مستشفى حكومي</span></div>' +
+      '<div class="map-legend-item"><div class="legend-circle" style="background:rgba(237,28,36,0.08);border-color:rgba(237,28,36,0.3);width:18px;height:18px;"></div><span>نطاق الضغط</span></div>';
+    return div;
+  };
+  legend.addTo(map);
+
+  setTimeout(function() { map.invalidateSize(); }, 200);
+  setTimeout(function() { map.invalidateSize(); }, 500);
+  setTimeout(function() { map.invalidateSize(); }, 1500);
+})();
+
+// === ANIMATED COUNTERS ===
+function animateCounters() {
+  var counters = document.querySelectorAll('.stat-number[data-target]');
+  counters.forEach(function(counter) {
+    var target = parseInt(counter.dataset.target);
+    var duration = 2000;
+    var startTime = performance.now();
+
+    function easeOutExpo(t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+
+    function update(currentTime) {
+      var elapsed = currentTime - startTime;
+      var progress = Math.min(elapsed / duration, 1);
+      var current = Math.floor(easeOutExpo(progress) * target);
+
+      if (target >= 1000000) {
+        counter.textContent = current >= 1000000 ? '+1 مليون' : current.toLocaleString('en-US');
+      } else {
+        counter.textContent = current.toLocaleString('en-US');
+      }
+
+      if (progress < 1) requestAnimationFrame(update);
+      else counter.textContent = target >= 1000000 ? '+1 مليون' : target.toLocaleString('en-US');
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+// === SCROLL REVEAL ===
+function setupReveal() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(function(el) { observer.observe(el); });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  animateCounters();
+  setupReveal();
+});
+</script>
+
+</body>
+</html>
