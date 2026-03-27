@@ -9,582 +9,187 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*{margin:0;padding:0;box-sizing:border-box}
 
-html, body {
-  height: 2000px;
-  overflow: hidden;
-  font-family: 'Noto Kufi Arabic', 'Noto Naskh Arabic', sans-serif;
-  background: #0a0a0a;
-  color: #fff;
-  direction: rtl;
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Kufi Arabic','Noto Naskh Arabic',sans-serif;background:#0a0a0a;color:#fff;direction:rtl}
+
+#map{width:100%;height:100%}
+
+.leaflet-tile-pane{filter:saturate(0.25) brightness(0.65)}
+
+#embed-title{position:fixed;top:10px;right:10px;left:10px;z-index:900;background:linear-gradient(135deg,rgba(10,10,10,0.92),rgba(18,18,18,0.88));border:1px solid rgba(198,40,40,0.5);border-radius:12px;padding:12px 18px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.title-text h1{font-size:16px;font-weight:800;color:#fff;line-height:1.5;margin:0}
+.title-text h1 span{color:#ef5350}
+.title-sub{font-size:10px;color:#999;margin-top:2px}
+.title-stats{display:flex;gap:14px;align-items:center;flex-shrink:0}
+.stat-box{text-align:center;padding:0 12px;border-right:2px solid #333}
+.stat-box:last-child{border-right:none}
+.stat-number{font-size:20px;font-weight:900;color:#ef5350;direction:ltr}
+.stat-label{font-size:9px;color:#aaa}
+
+#filter-panel{position:fixed;top:80px;right:10px;z-index:900;display:flex;gap:5px}
+.filter-btn{background:rgba(10,10,10,0.88);color:#bbb;border:1px solid #444;border-radius:20px;padding:4px 13px;font-size:12px;font-family:'Noto Kufi Arabic',sans-serif;cursor:pointer;transition:all .2s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.filter-btn:hover{border-color:#888;color:#fff}
+.filter-btn.active{background:#c62828;color:#fff;border-color:#c62828}
+
+#legend{position:fixed;bottom:30px;right:10px;z-index:900;background:rgba(10,10,10,0.92);border:1px solid #333;border-radius:10px;padding:10px 12px;max-width:190px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#legend h3{font-size:12px;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.legend-toggle{font-size:11px;color:#888}
+.legend-body{transition:max-height .3s ease,opacity .3s ease;overflow:hidden;max-height:400px;opacity:1}
+.legend-body.collapsed{max-height:0!important;opacity:0;padding:0}
+.legend-item{display:flex;align-items:center;gap:6px;padding:2px 0;font-size:10.5px;color:#ccc}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-divider{font-size:9px;font-weight:600;color:#666;margin-top:6px;margin-bottom:2px;padding-bottom:2px;border-bottom:1px solid #2a2a2a}
+
+#source-bar{position:fixed;bottom:6px;left:10px;z-index:900;font-size:9px;color:#555;background:rgba(0,0,0,0.7);padding:3px 8px;border-radius:3px}
+
+.leaflet-popup-content-wrapper{background:#1a1a1a!important;color:#fff!important;border:1px solid #c62828!important;border-radius:10px!important;direction:rtl;font-family:'Noto Kufi Arabic',sans-serif;min-width:250px}
+.leaflet-popup-tip{background:#1a1a1a!important;border:1px solid #c62828!important}
+.leaflet-popup-close-button{color:#999!important;font-size:18px!important}
+.popup-country{font-size:16px;font-weight:800;color:#ef5350;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.popup-country .flag{font-size:20px}
+.popup-rank{display:inline-block;background:#c62828;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:4px}
+.popup-total{font-size:12px;color:#ccc;padding:4px 0;border-bottom:1px solid #333;margin-bottom:5px}
+.popup-total strong{color:#ff8a80;font-size:15px;direction:ltr;display:inline-block}
+.popup-breakdown{display:flex;flex-direction:column;gap:4px}
+.popup-row{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:rgba(255,255,255,0.04);border-radius:5px}
+.popup-row-label{font-size:11px;color:#bbb;display:flex;align-items:center;gap:5px}
+.popup-row-label .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.popup-row-value{font-size:13px;font-weight:700;color:#fff;direction:ltr}
+.popup-note{font-size:10px;color:#777;margin-top:5px;padding-top:4px;border-top:1px solid #333;line-height:1.6}
+
+.loc-label{background:rgba(0,0,0,0.88)!important;color:#fff!important;border:1px solid #c62828!important;border-radius:4px!important;padding:3px 8px!important;font-family:'Noto Kufi Arabic',sans-serif!important;font-size:12px!important;font-weight:600!important;direction:rtl!important}
+
+.iran-label{background:none!important;border:none!important;box-shadow:none!important;color:#ef5350;font-family:'Noto Kufi Arabic',sans-serif;font-size:13px;font-weight:700;text-shadow:0 0 10px rgba(0,0,0,0.95),0 0 25px rgba(0,0,0,0.8);white-space:nowrap}
+
+@keyframes dashFlow{to{stroke-dashoffset:-20}}
+.attack-line{stroke-dasharray:6 4;animation:dashFlow 1.5s linear infinite}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:.1}}
+.pulse-ring{animation:pulse 2.5s ease-in-out infinite}
+
+@media(max-width:600px){
+  #embed-title{padding:8px 12px;flex-direction:column;align-items:flex-start;gap:8px}
+  .title-text h1{font-size:13px}
+  .title-stats{gap:6px}
+  .stat-number{font-size:16px}
+  .stat-box{padding:0 8px}
+  #filter-panel{top:100px}
+  .filter-btn{font-size:11px;padding:3px 10px}
+  #legend{max-width:160px;bottom:24px}
 }
-
-/* ===== CMS CROPPING CONFIG =====
-   AA CMS uses: margin-top: -173px on .iframeDiv
-   iframe height: 2000px, margin-bottom: -756px
-   Visible area: 2000 - 173 - 756 = 1071px
-   Visible window: from 173px to 1244px
-   ================================ */
-
-#map-container {
-  position: relative;
-  width: 100%;
-  height: 2000px;
-}
-
-#map {
-  position: absolute;
-  top: 173px;
-  height: 1071px;
-  width: 100%;
-}
-
-.leaflet-tile-pane {
-  filter: saturate(0.25) brightness(0.65);
-}
-
-/* ===== Title Overlay ===== */
-#embed-title {
-  position: absolute;
-  top: 178px;
-  right: 16px;
-  left: 16px;
-  z-index: 900;
-  background: linear-gradient(135deg, rgba(13,13,13,0.94) 0%, rgba(20,20,20,0.9) 100%);
-  border: 1px solid rgba(198,40,40,0.5);
-  border-radius: 12px;
-  padding: 14px 20px;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.title-text h1 {
-  font-size: 17px;
-  font-weight: 800;
-  color: #fff;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.title-text h1 span {
-  color: #ef5350;
-}
-
-.title-sub {
-  font-size: 11px;
-  color: #999;
-  margin-top: 2px;
-}
-
-.title-stats {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.stat-box {
-  text-align: center;
-  padding: 2px 12px;
-  border-right: 2px solid #333;
-}
-
-.stat-box:last-child { border-right: none; }
-
-.stat-number {
-  font-size: 20px;
-  font-weight: 900;
-  color: #ef5350;
-  direction: ltr;
-}
-
-.stat-label {
-  font-size: 9px;
-  color: #aaa;
-}
-
-/* ===== Filter Panel ===== */
-#filter-panel {
-  position: absolute;
-  top: 260px;
-  right: 16px;
-  z-index: 900;
-  display: flex;
-  gap: 6px;
-}
-
-.filter-btn {
-  background: rgba(13,13,13,0.88);
-  color: #bbb;
-  border: 1px solid #444;
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px;
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(6px);
-}
-
-.filter-btn:hover { border-color: #888; color: #fff; }
-
-.filter-btn.active {
-  background: #c62828;
-  color: #fff;
-  border-color: #c62828;
-}
-
-/* ===== Legend ===== */
-#legend {
-  position: absolute;
-  top: 300px;
-  right: 16px;
-  z-index: 900;
-  background: rgba(13,13,13,0.92);
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 12px 14px;
-  max-width: 200px;
-  backdrop-filter: blur(8px);
-}
-
-#legend h3 {
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.legend-toggle { font-size: 11px; color: #888; }
-
-.legend-body {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
-  overflow: hidden;
-  max-height: 500px;
-  opacity: 1;
-}
-
-.legend-body.collapsed {
-  max-height: 0 !important;
-  opacity: 0;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 0;
-  font-size: 11px;
-  color: #ccc;
-}
-
-.legend-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.legend-section-title {
-  font-size: 10px;
-  font-weight: 600;
-  color: #777;
-  margin-top: 8px;
-  margin-bottom: 3px;
-  padding-bottom: 3px;
-  border-bottom: 1px solid #333;
-}
-
-/* ===== Source Bar ===== */
-#source-bar {
-  position: absolute;
-  top: 1210px;
-  left: 16px;
-  z-index: 900;
-  font-size: 10px;
-  color: #666;
-  background: rgba(0,0,0,0.75);
-  padding: 4px 10px;
-  border-radius: 4px;
-  direction: rtl;
-}
-
-/* ===== Popup Styling ===== */
-.leaflet-popup-content-wrapper {
-  background: #1a1a1a !important;
-  color: #fff !important;
-  border: 1px solid #c62828 !important;
-  border-radius: 10px !important;
-  direction: rtl;
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  min-width: 260px;
-}
-
-.leaflet-popup-tip {
-  background: #1a1a1a !important;
-  border: 1px solid #c62828 !important;
-}
-
-.leaflet-popup-close-button {
-  color: #999 !important;
-  font-size: 18px !important;
-}
-
-.popup-country {
-  font-size: 17px;
-  font-weight: 800;
-  color: #ef5350;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.popup-country .flag { font-size: 22px; }
-
-.popup-rank {
-  display: inline-block;
-  background: #c62828;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-bottom: 4px;
-}
-
-.popup-total {
-  font-size: 12px;
-  color: #ccc;
-  padding: 5px 0;
-  border-bottom: 1px solid #333;
-  margin-bottom: 6px;
-}
-
-.popup-total strong {
-  color: #ff8a80;
-  font-size: 15px;
-  direction: ltr;
-  display: inline-block;
-}
-
-.popup-breakdown { display: flex; flex-direction: column; gap: 5px; }
-
-.popup-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 6px;
-}
-
-.popup-row-label {
-  font-size: 11px;
-  color: #bbb;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.popup-row-label .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.popup-row-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  direction: ltr;
-}
-
-.popup-note {
-  font-size: 10px;
-  color: #888;
-  margin-top: 6px;
-  padding-top: 5px;
-  border-top: 1px solid #333;
-  line-height: 1.6;
-}
-
-/* Tooltip */
-.loc-label {
-  background: rgba(0,0,0,0.88) !important;
-  color: #fff !important;
-  border: 1px solid #c62828 !important;
-  border-radius: 4px !important;
-  padding: 3px 8px !important;
-  font-family: 'Noto Kufi Arabic', sans-serif !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  direction: rtl !important;
-}
-
-/* Iran label */
-.iran-label {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  color: #ef5350;
-  font-family: 'Noto Kufi Arabic', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7);
-  white-space: nowrap;
-}
-
-/* Animated dashed lines */
-@keyframes dashFlow {
-  to { stroke-dashoffset: -20; }
-}
-
-.attack-line { stroke-dasharray: 6 4; animation: dashFlow 1.5s linear infinite; }
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.12; }
-}
-
-/* ===== Responsive for narrow embeds ===== */
-@media (max-width: 768px) {
-  #embed-title { padding: 10px 14px; flex-direction: column; align-items: flex-start; }
-  .title-text h1 { font-size: 14px; }
-  .title-stats { gap: 8px; }
-  .stat-number { font-size: 16px; }
-  #filter-panel { top: 290px; }
-  #legend { top: 330px; max-width: 170px; }
-  .filter-btn { font-size: 11px; padding: 4px 10px; }
+@media(max-height:500px){
+  #embed-title{padding:6px 12px}
+  .title-text h1{font-size:12px}
+  .stat-number{font-size:15px}
+  #filter-panel{top:62px}
+  #legend{display:none}
 }
 </style>
 </head>
 <body>
+<div id="map"></div>
 
-<div id="map-container">
-  <div id="map"></div>
-
-  <!-- Title overlay -->
-  <div id="embed-title">
-    <div class="title-text">
-      <h1>حصيلة 27 يوماً من <span>الهجمات الإيرانية</span> على 7 دول عربية</h1>
-      <div class="title-sub">28 فبراير - 26 مارس 2026 | رصد الأناضول استناداً إلى بيانات رسمية</div>
-    </div>
-    <div class="title-stats">
-      <div class="stat-box">
-        <div class="stat-number">4,905</div>
-        <div class="stat-label">صاروخ ومسيّرة</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number">7</div>
-        <div class="stat-label">دول</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-number">27</div>
-        <div class="stat-label">يوماً</div>
-      </div>
-    </div>
+<div id="embed-title">
+  <div class="title-text">
+    <h1>حصيلة 27 يوماً من <span>الهجمات الإيرانية</span> على 7 دول عربية</h1>
+    <div class="title-sub">28 فبراير - 26 مارس 2026 | رصد الأناضول</div>
   </div>
-
-  <!-- Filters -->
-  <div id="filter-panel">
-    <button class="filter-btn active" data-filter="all">الكل</button>
-    <button class="filter-btn" data-filter="missiles">صواريخ</button>
-    <button class="filter-btn" data-filter="drones">مسيّرات</button>
+  <div class="title-stats">
+    <div class="stat-box"><div class="stat-number">4,905</div><div class="stat-label">صاروخ ومسيّرة</div></div>
+    <div class="stat-box"><div class="stat-number">7</div><div class="stat-label">دول</div></div>
+    <div class="stat-box"><div class="stat-number">27</div><div class="stat-label">يوماً</div></div>
   </div>
-
-  <!-- Legend -->
-  <div id="legend">
-    <h3 onclick="document.querySelector('.legend-body').classList.toggle('collapsed'); document.querySelector('.legend-toggle').textContent = document.querySelector('.legend-toggle').textContent==='▲' ? '▼' : '▲'">
-      دليل الألوان <span class="legend-toggle">▼</span>
-    </h3>
-    <div class="legend-body">
-      <div class="legend-section-title">ترتيب الاستهداف</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff1744"></div>الإمارات — الأكثر</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff5722"></div>الكويت</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div>السعودية</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#e91e63"></div>البحرين</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ab47bc"></div>قطر</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#42a5f5"></div>الأردن</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div>عُمان — الأقل</div>
-      <div class="legend-section-title" style="margin-top:8px">حجم الدائرة</div>
-      <div class="legend-item" style="font-size:10px;color:#999">يتناسب مع إجمالي الهجمات</div>
-    </div>
-  </div>
-
-  <!-- Source -->
-  <div id="source-bar">المصدر: رصد وكالة الأناضول استناداً إلى بيانات رسمية | حتى 26 مارس 2026</div>
 </div>
 
-<script>
-const IRAN = { lat: 32.5, lng: 53.5 };
+<div id="filter-panel">
+  <button class="filter-btn active" data-filter="all">الكل</button>
+  <button class="filter-btn" data-filter="missiles">صواريخ</button>
+  <button class="filter-btn" data-filter="drones">مسيّرات</button>
+</div>
 
-const countries = [
-  {
-    name: 'الإمارات', flag: '🇦🇪', lat: 24.0, lng: 54.2,
-    missiles: 387, drones: 1826, jets: 0, color: '#ff1744',
-    rank: 1, rankLabel: 'الأكثر استهدافاً',
-    note: 'اعترضت 372 صاروخاً باليستياً و15 جوالاً و1,826 مسيّرة',
-    source: 'وزارة الدفاع الإماراتية'
-  },
-  {
-    name: 'الكويت', flag: '🇰🇼', lat: 29.3, lng: 47.9,
-    missiles: 314, drones: 625, jets: 0, color: '#ff5722',
-    rank: 2, rankLabel: 'الثانية',
-    note: 'رصد لبيانات الجيش والحرس الوطني ومركز التواصل',
-    source: 'رصد الأناضول'
-  },
-  {
-    name: 'السعودية', flag: '🇸🇦', lat: 24.7, lng: 46.7,
-    missiles: 44, drones: 665, jets: 0, color: '#ff9800',
-    rank: 3, rankLabel: 'الثالثة',
-    note: 'استهداف منطقتين بينهما الرياض منذ 28 فبراير',
-    source: 'رصد الأناضول لبيانات وزارتي الدفاع والخارجية'
-  },
-  {
-    name: 'البحرين', flag: '🇧🇭', lat: 26.07, lng: 50.55,
-    missiles: 154, drones: 350, jets: 0, color: '#e91e63',
-    rank: 4, rankLabel: 'الرابعة',
-    note: 'اعترضت ودمرت 154 صاروخاً و350 مسيّرة',
-    source: 'قوة دفاع البحرين'
-  },
-  {
-    name: 'قطر', flag: '🇶🇦', lat: 25.3, lng: 51.18,
-    missiles: 206, drones: 87, jets: 2, color: '#ab47bc',
-    rank: 5, rankLabel: 'الخامسة',
-    note: 'هجوم بمقاتلتين سوخوي-24 إضافة للصواريخ والمسيّرات',
-    source: 'رصد الأناضول لبيانات وزارة الدفاع'
-  },
-  {
-    name: 'الأردن', flag: '🇯🇴', lat: 31.5, lng: 36.6,
-    missiles: 240, drones: 0, jets: 0, color: '#42a5f5',
-    rank: 6, rankLabel: 'السادسة',
-    note: '240 صاروخاً ومسيّرة (حصيلة مجمعة)',
-    source: 'بيانات الجيش الأردني',
-    combined: true
-  },
-  {
-    name: 'سلطنة عُمان', flag: '🇴🇲', lat: 21.5, lng: 57.0,
-    missiles: 0, drones: 16, jets: 0, color: '#66bb6a',
-    rank: 7, rankLabel: 'الأقل استهدافاً',
-    note: '16 مسيّرة فقط',
-    source: 'وكالة الأنباء العمانية'
-  }
+<div id="legend">
+  <h3 onclick="document.querySelector('.legend-body').classList.toggle('collapsed');this.querySelector('.legend-toggle').textContent=this.querySelector('.legend-toggle').textContent==='▲'?'▼':'▲'">
+    دليل الألوان <span class="legend-toggle">▼</span>
+  </h3>
+  <div class="legend-body">
+    <div class="legend-divider">ترتيب الاستهداف</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff1744"></div>الإمارات — الأكثر</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff5722"></div>الكويت</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div>السعودية</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e91e63"></div>البحرين</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ab47bc"></div>قطر</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#42a5f5"></div>الأردن</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#66bb6a"></div>عُمان — الأقل</div>
+    <div class="legend-divider">حجم الدائرة</div>
+    <div class="legend-item" style="font-size:9px;color:#888">يتناسب مع إجمالي الهجمات</div>
+  </div>
+</div>
+
+<div id="source-bar">المصدر: رصد وكالة الأناضول | بيانات رسمية حتى 26 مارس 2026</div>
+
+<script>
+var IRAN={lat:32.5,lng:53.5};
+var countries=[
+  {name:'الإمارات',flag:'🇦🇪',lat:24.0,lng:54.2,missiles:387,drones:1826,jets:0,color:'#ff1744',rank:1,rankLabel:'الأكثر استهدافاً',note:'اعترضت 372 باليستياً و15 جوالاً و1,826 مسيّرة',source:'وزارة الدفاع الإماراتية'},
+  {name:'الكويت',flag:'🇰🇼',lat:29.3,lng:47.9,missiles:314,drones:625,jets:0,color:'#ff5722',rank:2,rankLabel:'الثانية',note:'بيانات الجيش والحرس الوطني ومركز التواصل',source:'رصد الأناضول'},
+  {name:'السعودية',flag:'🇸🇦',lat:24.7,lng:46.7,missiles:44,drones:665,jets:0,color:'#ff9800',rank:3,rankLabel:'الثالثة',note:'استهداف منطقتين بينهما الرياض منذ 28 فبراير',source:'رصد الأناضول'},
+  {name:'البحرين',flag:'🇧🇭',lat:26.07,lng:50.55,missiles:154,drones:350,jets:0,color:'#e91e63',rank:4,rankLabel:'الرابعة',note:'اعترضت ودمرت 154 صاروخاً و350 مسيّرة',source:'قوة دفاع البحرين'},
+  {name:'قطر',flag:'🇶🇦',lat:25.3,lng:51.18,missiles:206,drones:87,jets:2,color:'#ab47bc',rank:5,rankLabel:'الخامسة',note:'هجوم بمقاتلتين سوخوي-24 + صواريخ ومسيّرات',source:'رصد الأناضول'},
+  {name:'الأردن',flag:'🇯🇴',lat:31.5,lng:36.6,missiles:240,drones:0,jets:0,color:'#42a5f5',rank:6,rankLabel:'السادسة',note:'240 صاروخاً ومسيّرة (حصيلة مجمعة)',source:'الجيش الأردني',combined:true},
+  {name:'سلطنة عُمان',flag:'🇴🇲',lat:21.5,lng:57.0,missiles:0,drones:16,jets:0,color:'#66bb6a',rank:7,rankLabel:'الأقل استهدافاً',note:'16 مسيّرة فقط',source:'وكالة الأنباء العمانية'}
 ];
 
-// Initialize map - positioned within the visible window
-const map = L.map('map', {
-  center: [27, 49],
-  zoom: 5,
-  zoomControl: false,
-  attributionControl: false
+var map=L.map('map',{center:[27,49],zoom:5,zoomControl:false,attributionControl:false});
+L.control.zoom({position:'topleft'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:18,subdomains:'abcd'}).addTo(map);
+
+// Multiple invalidations to handle any iframe loading timing
+setTimeout(function(){map.invalidateSize()},100);
+setTimeout(function(){map.invalidateSize()},300);
+setTimeout(function(){map.invalidateSize()},800);
+setTimeout(function(){map.invalidateSize()},1500);
+setTimeout(function(){map.invalidateSize()},3000);
+window.addEventListener('resize',function(){setTimeout(function(){map.invalidateSize()},50)});
+
+L.marker([IRAN.lat,IRAN.lng],{icon:L.divIcon({className:'iran-label',html:'🇮🇷 إيران',iconSize:[80,20],iconAnchor:[40,10]}),interactive:false}).addTo(map);
+
+countries.forEach(function(c){
+  L.polyline([[IRAN.lat,IRAN.lng],[c.lat,c.lng]],{color:c.color,weight:1.5,opacity:0.22,dashArray:'6 4',className:'attack-line'}).addTo(map);
 });
 
-L.control.zoom({ position: 'topleft' }).addTo(map);
+var allMarkers=[];
+countries.forEach(function(c){
+  var total=c.combined?c.missiles:(c.missiles+c.drones+(c.jets||0));
+  var radius=total<100?12:total<300?18:total<600?24:total<1000?30:38;
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO',
-  maxZoom: 18,
-  subdomains: 'abcd'
-}).addTo(map);
+  if(total>500){L.circleMarker([c.lat,c.lng],{radius:radius+10,fillColor:c.color,color:c.color,weight:1,opacity:0.2,fillOpacity:0.07,className:'pulse-ring',interactive:false}).addTo(map)}
 
-// Invalidate size after load to fix tile rendering
-setTimeout(() => { map.invalidateSize(); }, 200);
-setTimeout(() => { map.invalidateSize(); }, 500);
+  var marker=L.circleMarker([c.lat,c.lng],{radius:radius,fillColor:c.color,color:c.color,weight:2.5,opacity:0.9,fillOpacity:0.35}).addTo(map);
 
-// Iran label
-const iranIcon = L.divIcon({
-  className: 'iran-label',
-  html: '🇮🇷 إيران',
-  iconSize: [80, 20],
-  iconAnchor: [40, 10]
-});
-L.marker([IRAN.lat, IRAN.lng], { icon: iranIcon, interactive: false }).addTo(map);
-
-// Connecting lines
-const lineLayer = L.layerGroup().addTo(map);
-countries.forEach(c => {
-  L.polyline([[IRAN.lat, IRAN.lng], [c.lat, c.lng]], {
-    color: c.color, weight: 1.5, opacity: 0.25,
-    dashArray: '6 4', className: 'attack-line'
-  }).addTo(lineLayer);
-});
-
-// Create markers
-const allMarkers = [];
-
-countries.forEach(c => {
-  const total = c.combined ? c.missiles : (c.missiles + c.drones + c.jets);
-
-  let radius;
-  if (total < 100) radius = 12;
-  else if (total < 300) radius = 18;
-  else if (total < 600) radius = 24;
-  else if (total < 1000) radius = 30;
-  else radius = 38;
-
-  // Pulse ring
-  if (total > 500) {
-    L.circleMarker([c.lat, c.lng], {
-      radius: radius + 10, fillColor: c.color, color: c.color,
-      weight: 1, opacity: 0.2, fillOpacity: 0.08, interactive: false
-    }).addTo(map);
+  var bk='';
+  if(c.combined){bk='<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ff8a80"></span>صواريخ ومسيّرات</span><span class="popup-row-value">'+c.missiles.toLocaleString('ar-EG')+'</span></div>'}
+  else{
+    if(c.missiles>0)bk+='<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ff5252"></span>صواريخ</span><span class="popup-row-value">'+c.missiles.toLocaleString('ar-EG')+'</span></div>';
+    if(c.drones>0)bk+='<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ffab40"></span>مسيّرات</span><span class="popup-row-value">'+c.drones.toLocaleString('ar-EG')+'</span></div>';
+    if(c.jets>0)bk+='<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ce93d8"></span>مقاتلات</span><span class="popup-row-value">'+c.jets+'</span></div>';
   }
 
-  // Main marker
-  const marker = L.circleMarker([c.lat, c.lng], {
-    radius, fillColor: c.color, color: c.color,
-    weight: 2.5, opacity: 0.9, fillOpacity: 0.35
-  }).addTo(map);
+  marker.bindPopup('<div><span class="popup-rank">#'+c.rank+' '+c.rankLabel+'</span><div class="popup-country"><span class="flag">'+c.flag+'</span> '+c.name+'</div><div class="popup-total">إجمالي: <strong>'+total.toLocaleString('ar-EG')+'</strong></div><div class="popup-breakdown">'+bk+'</div><div class="popup-note">📋 '+c.note+'<br>📌 '+c.source+'</div></div>',{maxWidth:280,autoPan:true});
 
-  // Popup
-  let breakdownHTML = '';
-  if (c.combined) {
-    breakdownHTML = `<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ff8a80"></span>صواريخ ومسيّرات</span><span class="popup-row-value">${c.missiles.toLocaleString('ar-EG')}</span></div>`;
-  } else {
-    if (c.missiles > 0) breakdownHTML += `<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ff5252"></span>صواريخ</span><span class="popup-row-value">${c.missiles.toLocaleString('ar-EG')}</span></div>`;
-    if (c.drones > 0) breakdownHTML += `<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ffab40"></span>مسيّرات</span><span class="popup-row-value">${c.drones.toLocaleString('ar-EG')}</span></div>`;
-    if (c.jets > 0) breakdownHTML += `<div class="popup-row"><span class="popup-row-label"><span class="dot" style="background:#ce93d8"></span>طائرات مقاتلة</span><span class="popup-row-value">${c.jets}</span></div>`;
-  }
+  marker.bindTooltip(c.flag+' '+c.name,{permanent:false,direction:'top',offset:[0,-radius-4],className:'loc-label'});
 
-  marker.bindPopup(`
-    <div>
-      <span class="popup-rank">#${c.rank} ${c.rankLabel}</span>
-      <div class="popup-country"><span class="flag">${c.flag}</span> ${c.name}</div>
-      <div class="popup-total">إجمالي: <strong>${total.toLocaleString('ar-EG')}</strong></div>
-      <div class="popup-breakdown">${breakdownHTML}</div>
-      <div class="popup-note">📋 ${c.note}<br>📌 ${c.source}</div>
-    </div>
-  `, { maxWidth: 300, autoPan: true });
-
-  marker.bindTooltip(`${c.flag} ${c.name}`, {
-    permanent: false, direction: 'top',
-    offset: [0, -radius - 4], className: 'loc-label'
-  });
-
-  allMarkers.push({ marker, country: c, total, missiles: c.missiles, drones: c.drones, combined: c.combined });
+  allMarkers.push({marker:marker,missiles:c.missiles,drones:c.drones,combined:c.combined});
 });
 
-// Filter logic
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.filter-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
     btn.classList.add('active');
-    const f = btn.dataset.filter;
-    allMarkers.forEach(({ marker, missiles, drones, combined }) => {
-      if (f === 'all') { marker.setStyle({ opacity: 0.9, fillOpacity: 0.35 }); }
-      else if (f === 'missiles') { marker.setStyle(combined || missiles > 0 ? { opacity: 0.9, fillOpacity: 0.35 } : { opacity: 0.12, fillOpacity: 0.05 }); }
-      else if (f === 'drones') { marker.setStyle(combined || drones > 0 ? { opacity: 0.9, fillOpacity: 0.35 } : { opacity: 0.12, fillOpacity: 0.05 }); }
+    var f=btn.dataset.filter;
+    allMarkers.forEach(function(m){
+      if(f==='all'){m.marker.setStyle({opacity:0.9,fillOpacity:0.35})}
+      else if(f==='missiles'){m.marker.setStyle(m.combined||m.missiles>0?{opacity:0.9,fillOpacity:0.35}:{opacity:0.12,fillOpacity:0.05})}
+      else if(f==='drones'){m.marker.setStyle(m.combined||m.drones>0?{opacity:0.9,fillOpacity:0.35}:{opacity:0.12,fillOpacity:0.05})}
     });
   });
 });
