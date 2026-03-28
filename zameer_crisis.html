@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أزمة نقص الجنود في الجيش الإسرائيلي — وكالة الأناضول</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700;900&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root {
+  --navy: #0d1b2a;
+  --navy-mid: #1b2d45;
+  --navy-light: #243b53;
+  --aa-red: #ED1C24;
+  --red-dark: #C62828;
+  --teal: #00BFA5;
+  --teal-dark: #00897B;
+  --amber: #FFB300;
+  --amber-dark: #FF8F00;
+  --steel: #78909C;
+  --steel-light: #B0BEC5;
+  --panel: rgba(13,27,42,0.92);
+  --border: rgba(237,28,36,0.2);
+  --border-subtle: rgba(255,255,255,0.08);
+  --text-w: #ffffff;
+  --text-s: rgba(255,255,255,0.7);
+  --text-m: rgba(255,255,255,0.4);
+  --img-base: https://mfarrag2050.github.io/aaintermap/img/zameer-crisis;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; min-height: 100vh;
+  background: linear-gradient(160deg, #0a1628 0%, #0d1b2a 35%, #162a3e 100%);
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  color: var(--text-w);
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 820px; margin: 0 auto; padding: 20px 16px 40px; }
+
+/* ===== HEADER ===== */
+.hero {
+  text-align: center;
+  padding: 32px 20px 24px;
+  position: relative;
+}
+.hero-img {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--aa-red);
+  margin-bottom: 14px;
+  box-shadow: 0 0 24px rgba(237,28,36,0.25);
+}
+.hero h1 {
+  font-size: 26px; font-weight: 700;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.hero h1 span { color: var(--aa-red); }
+.hero .sub {
+  font-size: 15px;
+  color: var(--text-s);
+  font-family: 'Noto Naskh Arabic', serif;
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.hero .aa-tag {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--aa-red);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.hero-line {
+  width: 50px; height: 2px;
+  background: var(--aa-red);
+  margin: 12px auto 0;
+  border-radius: 1px;
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex; gap: 5px;
+  margin: 22px 0 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.tab {
+  padding: 9px 18px;
+  border-radius: 20px;
+  font-size: 13px; font-weight: 500;
+  font-family: 'Noto Kufi Arabic', sans-serif;
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-s);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.tab:hover { border-color: rgba(255,255,255,0.2); color: var(--text-w); }
+.tab.on {
+  background: var(--aa-red);
+  border-color: var(--aa-red);
+  color: #fff;
+}
+
+/* ===== SECTIONS ===== */
+.sec { display: none; animation: up 0.35s ease; }
+.sec.on { display: block; }
+@keyframes up { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+.sh {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.sh-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700;
+}
+.sh h2 { font-size: 19px; font-weight: 700; }
+
+.card {
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ===== 1. NUMBERS ===== */
+.sg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sc {
+  background: rgba(27,45,69,0.6);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.sc:hover { border-color: rgba(237,28,36,0.3); }
+.sv { font-size: 34px; font-weight: 900; direction: ltr; font-variant-numeric: tabular-nums; }
+.su { font-size: 13px; color: var(--text-s); margin-top: 4px; }
+.sd { font-size: 12.5px; color: var(--text-m); margin-top: 6px; font-family: 'Noto Naskh Arabic', serif; line-height: 1.6; }
+
+/* ===== 2. MAP ===== */
+#map { width: 100%; height: 420px; border-radius: 12px; border: 1px solid var(--border-subtle); }
+.leaflet-tile-pane { filter: saturate(0.25) brightness(0.65); }
+.leaflet-popup-content-wrapper { background: var(--navy) !important; color: #fff !important; border: 1px solid var(--aa-red) !important; border-radius: 10px !important; font-family: 'Noto Kufi Arabic', sans-serif !important; direction: rtl !important; }
+.leaflet-popup-tip { background: var(--navy) !important; }
+.leaflet-popup-content { font-size: 14px !important; line-height: 1.7 !important; }
+.popup-name { font-weight: 700; color: var(--aa-red); font-size: 16px; margin-bottom: 4px; }
+.popup-type { color: var(--text-s); font-size: 13px; }
+.popup-detail { color: var(--text-s); font-size: 13px; margin-top: 6px; font-family: 'Noto Naskh Arabic', serif; line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 6px; }
+.map-legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+}
+.ml-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-s); }
+.ml-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+/* ===== 3. QUOTES ===== */
+.qc {
+  background: rgba(27,45,69,0.5);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.qc:hover { border-color: rgba(237,28,36,0.25); }
+.qh { display: flex; align-items: center; gap: 14px; }
+.qimg {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+.qn { font-size: 17px; font-weight: 700; }
+.qr { font-size: 13px; color: var(--text-s); margin-top: 2px; }
+.qp {
+  margin-top: 14px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'Noto Naskh Arabic', serif;
+  line-height: 1.8;
+  position: relative;
+}
+.qp::before {
+  content: '"';
+  position: absolute;
+  top: -8px; right: 10px;
+  font-size: 36px;
+  opacity: 0.2;
+  font-family: serif;
+}
+.qf {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text-s);
+  font-family: 'Noto Naskh Arabic', serif;
+  line-height: 1.8;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s;
+}
+.qc.open .qf { max-height: 500px; }
+.qc .more-hint {
+  font-size: 12px;
+  color: var(--text-m);
+  margin-top: 8px;
+  text-align: center;
+  transition: opacity 0.3s;
+}
+.qc.open .more-hint { opacity: 0; }
+
+/* ===== 4. POLITICAL ===== */
+.eq-flow { display: flex; gap: 8px; align-items: stretch; }
+.eq-box {
+  flex: 1;
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.eq-img {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid;
+  margin-bottom: 8px;
+}
+.eq-logo {
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.08);
+  padding: 4px;
+}
+.eq-name { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.eq-want { font-size: 12.5px; line-height: 1.7; opacity: 0.8; }
+.eq-arr { display: flex; align-items: center; font-size: 20px; color: var(--text-m); flex-shrink: 0; }
+
+.meter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.meter-label { font-size: 13px; color: var(--text-s); min-width: 100px; text-align: right; }
+.meter-track {
+  flex: 1; height: 26px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 13px;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500; color: #fff;
+  transition: width 1.2s ease-out;
+}
+
+/* ===== 5. TIMELINE ===== */
+.tl { position: relative; padding-right: 22px; }
+.tl-line { position: absolute; right: 6px; top: 0; width: 2px; height: 100%; background: var(--border-subtle); border-radius: 1px; }
+.tl-item { position: relative; padding-right: 30px; margin-bottom: 20px; }
+.tl-dot {
+  position: absolute;
+  right: -1px; top: 4px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid var(--navy);
+  z-index: 1;
+}
+.tl-date { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.tl-text { font-size: 14px; color: var(--text-s); font-family: 'Noto Naskh Arabic', serif; line-height: 1.8; }
+
+/* ===== 6. HAREDI ===== */
+.donut-wrap { display: flex; align-items: center; gap: 24px; justify-content: center; margin: 16px 0; }
+.donut-labels { text-align: right; }
+.dl-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.dl-sq { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+.dl-txt { font-size: 14px; color: var(--text-s); }
+.dl-pct { font-size: 15px; font-weight: 700; direction: ltr; min-width: 45px; text-align: left; }
+
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 13px; color: var(--text-s); min-width: 90px; text-align: right; }
+.bar-track { flex: 1; height: 26px; background: rgba(255,255,255,0.05); border-radius: 13px; overflow: hidden; }
+.bar-fill {
+  height: 100%; border-radius: 13px;
+  display: flex; align-items: center; padding: 0 12px;
+  font-size: 12px; font-weight: 500; color: #fff;
+  transition: width 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+.source {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-m);
+  padding: 22px 0 10px;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 22px;
+  font-family: 'Noto Naskh Arabic', serif;
+}
+
+@media (max-width: 520px) {
+  .sg { grid-template-columns: repeat(2, 1fr); }
+  .eq-flow { flex-direction: column; }
+  .eq-arr { justify-content: center; transform: rotate(90deg); }
+  .sv { font-size: 28px; }
+  .donut-wrap { flex-direction: column; }
+  #map { height: 320px; }
+  .hero h1 { font-size: 21px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <img class="hero-img" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Eyal-Zamir%20.jpg" alt="إيال زامير">
+    <h1>تحذير رئيس الأركان الإسرائيلي من <span>انهيار الجيش</span></h1>
+    <div class="sub">أزمة نقص القوى البشرية في الجيش الإسرائيلي — الأبعاد العسكرية والسياسية</div>
+    <div class="aa-tag">ANADOLU AGENCY</div>
+    <div class="hero-line"></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-i="0">الأرقام</button>
+    <button class="tab" data-i="1">خريطة الجبهات</button>
+    <button class="tab" data-i="2">ردود الفعل</button>
+    <button class="tab" data-i="3">المعادلة السياسية</button>
+    <button class="tab" data-i="4">التسلسل الزمني</button>
+    <button class="tab" data-i="5">الحريديم</button>
+  </div>
+
+  <!-- ===== 1. NUMBERS ===== -->
+  <div class="sec on" id="s0">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(237,28,36,0.15);color:var(--aa-red)">1</div>
+      <h2>الأزمة بالأرقام</h2>
+    </div>
+    <div class="sg">
+      <div class="sc">
+        <div class="sv" style="color:var(--aa-red)" id="n1">0</div>
+        <div class="su">جندي احتياط</div>
+        <div class="sd">منتشرون على جميع الجبهات</div>
+      </div>
+      <div class="sc">
+        <div class="sv" style="color:var(--amber)" id="n2">0</div>
+        <div class="su">جندي مطلوب إضافي</div>
+        <div class="sd">منهم 7,000–8,000 مقاتل</div>
+      </div>
+      <div class="sc">
+        <div class="sv" style="color:var(--teal)" id="n3">0</div>
+        <div class="su">دورات خدمة</div>
+        <div class="sd">للاحتياط منذ أكتوبر 2023</div>
+      </div>
+      <div class="sc">
+        <div class="sv" style="color:var(--steel-light)">4</div>
+        <div class="su">جبهات نشطة</div>
+        <div class="sd">إيران — لبنان — الضفة — غزة</div>
+      </div>
+      <div class="sc">
+        <div class="sv" style="color:var(--amber-dark)">4</div>
+        <div class="su">فرق عسكرية</div>
+        <div class="sd">دُفعت إلى جنوب لبنان</div>
+      </div>
+      <div class="sc">
+        <div class="sv" style="color:var(--teal-dark)">~13%</div>
+        <div class="su">نسبة الحريديم</div>
+        <div class="sd">ممتنعون عن الخدمة العسكرية</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. MAP ===== -->
+  <div class="sec" id="s1">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(0,191,165,0.15);color:var(--teal)">2</div>
+      <h2>خريطة انتشار القوات</h2>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div id="map"></div>
+    </div>
+    <div class="map-legend">
+      <div class="ml-item"><div class="ml-dot" style="background:var(--aa-red)"></div>إيران — جوي</div>
+      <div class="ml-item"><div class="ml-dot" style="background:var(--amber)"></div>جنوب لبنان — بري</div>
+      <div class="ml-item"><div class="ml-dot" style="background:var(--teal)"></div>الضفة الغربية</div>
+      <div class="ml-item"><div class="ml-dot" style="background:var(--steel-light)"></div>قطاع غزة</div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div style="font-size:14px;color:var(--text-s);margin-bottom:10px">حجم الانتشار حسب الجبهة (تقديري)</div>
+      <div class="bar-row"><div class="bar-label">قطاع غزة</div><div class="bar-track"><div class="bar-fill bf" data-w="90" style="width:0%;background:var(--steel-light)">الأعلى كثافة</div></div></div>
+      <div class="bar-row"><div class="bar-label">جنوب لبنان</div><div class="bar-track"><div class="bar-fill bf" data-w="70" style="width:0%;background:var(--amber)">4 فرق عسكرية</div></div></div>
+      <div class="bar-row"><div class="bar-label">الضفة الغربية</div><div class="bar-track"><div class="bar-fill bf" data-w="55" style="width:0%;background:var(--teal)">قوات كبيرة</div></div></div>
+      <div class="bar-row"><div class="bar-label">إيران</div><div class="bar-track"><div class="bar-fill bf" data-w="30" style="width:0%;background:var(--aa-red)">عمليات جوية</div></div></div>
+    </div>
+  </div>
+
+  <!-- ===== 3. QUOTES ===== -->
+  <div class="sec" id="s2">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(255,179,0,0.15);color:var(--amber)">3</div>
+      <h2>ردود الفعل على تحذير زامير</h2>
+    </div>
+
+    <div class="qc" onclick="this.classList.toggle('open')">
+      <div class="qh">
+        <img class="qimg" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Yair-Lapid.jpg" alt="لابيد" style="border-color:var(--aa-red)">
+        <div><div class="qn">يائير لابيد</div><div class="qr">زعيم المعارضة الإسرائيلية</div></div>
+      </div>
+      <div class="qp" style="background:rgba(237,28,36,0.08);border-right:3px solid var(--aa-red)">
+        لا يمكنكم الاستمرار في التخلي عن أمن إسرائيل، في زمن الحرب، من أجل مصالح سياسية تافهة
+      </div>
+      <div class="more-hint">اضغط للتفاصيل</div>
+      <div class="qf">
+        قال لابيد إن رئيس الأركان أبلغ الكابينت بأن جنود الاحتياط منهكون تمامًا بعد 6–7 دورات خدمة، وأن القوات النظامية في حالة انهيار تام. وأضاف أن الجيش لا يملك العدد الكافي من الجنود لتنفيذ مهامه، وأن استمرار الحكومة في تشجيع تهرب المتدينين يشكل خطرًا أمنيًا بالغًا. وطالب الحكومة بوقف جميع ميزانيات المتهربين وإرسال الشرطة العسكرية للفارين وتجنيد المتدينين دون تردد.
+      </div>
+    </div>
+
+    <div class="qc" onclick="this.classList.toggle('open')">
+      <div class="qh">
+        <img class="qimg" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Yair-Golan.jpg" alt="غولان" style="border-color:var(--teal)">
+        <div><div class="qn">يائير غولان</div><div class="qr">نائب رئيس الأركان الأسبق — حزب الديمقراطيين</div></div>
+      </div>
+      <div class="qp" style="background:rgba(0,191,165,0.06);border-right:3px solid var(--teal)">
+        هذه الحكومة التي تدعم الإرهاب اليهودي وتُنشئ بؤرًا غير قانونية تُلحق الضرر بالجيش الإسرائيلي
+      </div>
+      <div class="more-hint">اضغط للتفاصيل</div>
+      <div class="qf">
+        وصف غولان تصريحات رئيس الأركان بأنها "راية سوداء ضخمة ترفرف فوق سياسة الحكومة"، مؤكدًا أن حكومة نتنياهو-سموتريتش-بن غفير تروّج للإرهاب اليهودي وتُنشئ بؤرًا استيطانية غير قانونية وتسلّح مثيري الشغب، ما يلحق ضررًا مباشرًا بقدرة الجيش على تنفيذ مهامه الحقيقية.
+      </div>
+    </div>
+
+    <div class="qc" onclick="this.classList.toggle('open')">
+      <div class="qh">
+        <img class="qimg" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Avigdor-Lieberman.jpg" alt="ليبرمان" style="border-color:var(--amber)">
+        <div><div class="qn">أفيغدور ليبرمان</div><div class="qr">وزير الدفاع الأسبق — حزب إسرائيل بيتنا</div></div>
+      </div>
+      <div class="qp" style="background:rgba(255,179,0,0.06);border-right:3px solid var(--amber)">
+        يواجه الجيش الإسرائيلي أسوأ أزمة نقص في القوى البشرية في تاريخه
+      </div>
+      <div class="more-hint">اضغط للتفاصيل</div>
+      <div class="qf">
+        قال ليبرمان إن رئيس الأركان يحذر من أن التهرب يضر بأمن إسرائيل، لكن الحكومة تتجاهل التحذيرات كعادتها، مطالبًا بتجنيد الجميع دون استثناء.
+      </div>
+    </div>
+
+    <div class="qc" onclick="this.classList.toggle('open')">
+      <div class="qh">
+        <img class="qimg" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Avi-Issacharoff.jpg" alt="إيسسخاروف" style="border-color:var(--steel)">
+        <div><div class="qn">آفي إيسسخاروف</div><div class="qr">محلل في صحيفة يديعوت أحرونوت</div></div>
+      </div>
+      <div class="qp" style="background:rgba(120,144,156,0.08);border-right:3px solid var(--steel)">
+        ليس هو المشكلة وإنما رئيس الوزراء نتنياهو
+      </div>
+      <div class="more-hint">اضغط للتفاصيل</div>
+      <div class="qf">
+        أكد إيسسخاروف للأناضول أن تحذير زامير "كان مهنيًا" وأن الأطراف الداعمة للحكومة حاولت تفسيره سياسيًا. وقال إن رسالة زامير واضحة: الجيش يواجه مشكلة حقيقية بسبب عدم التجنيد في ظل توسع مهامه، مشيرًا إلى أن المشكلة ليست رئيس الأركان وإنما نتنياهو الذي يمتنع عن إقرار قانون التجنيد لإرضاء الأحزاب الدينية.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4. POLITICAL ===== -->
+  <div class="sec" id="s3">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(255,143,0,0.15);color:var(--amber-dark)">4</div>
+      <h2>المعادلة السياسية</h2>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;color:var(--text-s);margin-bottom:14px">لماذا لا تُحل أزمة التجنيد؟</div>
+      <div class="eq-flow">
+        <div class="eq-box" style="background:rgba(237,28,36,0.08);border:1px solid rgba(237,28,36,0.2)">
+          <img class="eq-img" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Netanyahu.jpg" alt="نتنياهو" style="border-color:var(--aa-red)">
+          <div class="eq-name" style="color:var(--aa-red)">نتنياهو</div>
+          <div class="eq-want" style="color:var(--text-s)">يحتاج الأحزاب الدينية لتمرير الميزانية وتفادي انتخابات مبكرة</div>
+        </div>
+        <div class="eq-arr">⇄</div>
+        <div class="eq-box" style="background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.2)">
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <img class="eq-logo" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Shas-party.png" alt="شاس">
+            <img class="eq-logo" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/United-Torah-Judaism.png" alt="يهدوت هتوراه">
+          </div>
+          <div class="eq-name" style="color:var(--amber)">شاس + يهدوت هتوراه</div>
+          <div class="eq-want" style="color:var(--text-s)">تشترط قانون إعفاء الحريديم من التجنيد مقابل التصويت على الميزانية</div>
+        </div>
+        <div class="eq-arr">⇄</div>
+        <div class="eq-box" style="background:rgba(0,191,165,0.06);border:1px solid rgba(0,191,165,0.2)">
+          <img class="eq-img" src="https://mfarrag2050.github.io/aaintermap/img/zameer-crisis/Eyal-Zamir%20.jpg" alt="زامير" style="border-color:var(--teal)">
+          <div class="eq-name" style="color:var(--teal)">المعارضة + الجيش</div>
+          <div class="eq-want" style="color:var(--text-s)">تجنيد الجميع بمن فيهم الحريديم لسد العجز في القوى البشرية</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;color:var(--text-s);margin-bottom:10px">الاستحقاقات القادمة</div>
+      <div class="meter-row">
+        <div class="meter-label">تصويت الميزانية</div>
+        <div class="meter-track"><div class="meter-fill mf" data-w="35" style="width:0%;background:var(--aa-red)">الأيام القادمة</div></div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">نهاية ولاية الكنيست</div>
+        <div class="meter-track"><div class="meter-fill mf" data-w="60" style="width:0%;background:var(--amber)">أكتوبر 2026</div></div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">قرار المحكمة العليا</div>
+        <div class="meter-track"><div class="meter-fill mf" data-w="100" style="width:0%;background:var(--teal)">إلزام التجنيد (يونيو 2024)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 5. TIMELINE ===== -->
+  <div class="sec" id="s4">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(120,144,156,0.15);color:var(--steel-light)">5</div>
+      <h2>التسلسل الزمني للأزمة</h2>
+    </div>
+    <div class="card">
+      <div class="tl">
+        <div class="tl-line"></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--aa-red)"></div><div class="tl-body"><div class="tl-date" style="color:var(--aa-red)">7 أكتوبر 2023</div><div class="tl-text">بدء العدوان الإسرائيلي على قطاع غزة — استدعاء واسع لجنود الاحتياط على جبهات متعددة</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--amber)"></div><div class="tl-body"><div class="tl-date" style="color:var(--amber)">2024</div><div class="tl-text">تصاعد العمليات العسكرية في جنوب لبنان — دفع 4 فرق عسكرية وتوسيع العمليات البرية</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-body"><div class="tl-date" style="color:var(--teal)">25 يونيو 2024</div><div class="tl-text">المحكمة العليا تقرر إلزام الحريديم بالتجنيد ومنع المساعدات المالية عن المؤسسات الدينية الرافضة</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--amber-dark)"></div><div class="tl-body"><div class="tl-date" style="color:var(--amber-dark)">2025</div><div class="tl-text">تشريع الحكومة عشرات المواقع الاستيطانية في الضفة الغربية — تصاعد عنف المستوطنين — زيادة الحاجة لنشر قوات إضافية</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--red-dark)"></div><div class="tl-body"><div class="tl-date" style="color:var(--red-dark)">2025</div><div class="tl-text">بدء العدوان الأمريكي الإسرائيلي على إيران — فتح جبهة رابعة تستنزف موارد الجيش الجوية</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--aa-red)"></div><div class="tl-body"><div class="tl-date" style="color:var(--aa-red)">الأربعاء — اجتماع الكابينت</div><div class="tl-text">رئيس الأركان إيال زامير يحذر من انهيار الجيش — يرفع "أعلامًا حمراء عديدة" — يطالب بحل أزمة القوى البشرية</div></div></div>
+        <div class="tl-item"><div class="tl-dot" style="background:var(--steel-light)"></div><div class="tl-body"><div class="tl-date" style="color:var(--steel-light)">الخميس — المؤتمر الصحفي</div><div class="tl-text">الناطق العسكري يعلن وجود أكثر من 100 ألف احتياطي وحاجة الجيش إلى 15 ألف جندي إضافي — موجة ردود فعل سياسية واسعة</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 6. HAREDI ===== -->
+  <div class="sec" id="s5">
+    <div class="sh">
+      <div class="sh-icon" style="background:rgba(255,179,0,0.15);color:var(--amber)">6</div>
+      <h2>الحريديم والتجنيد</h2>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:14px 16px 8px;font-size:14px;color:var(--text-s)">من أرشيف وكالة الأناضول</div>
+      <div class="yt-wrap">
+        <iframe src="https://www.youtube.com/embed/vWbK2gnqKx4?mute=1&loop=1&controls=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;color:var(--text-s);margin-bottom:6px">نسبة الحريديم من إجمالي السكان</div>
+      <div class="donut-wrap">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="60" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="16"/>
+          <circle cx="75" cy="75" r="60" fill="none" stroke="var(--amber)" stroke-width="16"
+            stroke-dasharray="49 328" stroke-dashoffset="-82" stroke-linecap="round"/>
+          <circle cx="75" cy="75" r="60" fill="none" stroke="var(--teal)" stroke-width="16"
+            stroke-dasharray="328 0" stroke-dashoffset="-131" stroke-linecap="round" opacity="0.4"/>
+          <text x="75" y="70" text-anchor="middle" fill="#fff" font-size="26" font-weight="900" font-family="'Noto Kufi Arabic'">~13%</text>
+          <text x="75" y="90" text-anchor="middle" fill="rgba(255,255,255,0.45)" font-size="10" font-family="'Noto Kufi Arabic'">من السكان</text>
+        </svg>
+        <div class="donut-labels">
+          <div class="dl-row"><div class="dl-sq" style="background:var(--amber)"></div><div class="dl-txt">الحريديم</div><div class="dl-pct" style="color:var(--amber)">~13%</div></div>
+          <div class="dl-row"><div class="dl-sq" style="background:var(--teal);opacity:0.4"></div><div class="dl-txt">بقية السكان</div><div class="dl-pct" style="color:var(--teal)">~87%</div></div>
+          <div class="dl-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border-subtle)">
+            <div class="dl-sq" style="background:var(--aa-red)"></div><div class="dl-txt">نسبتهم في الجيش</div><div class="dl-pct" style="color:var(--aa-red)">0%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;color:var(--text-s);margin-bottom:10px">المقارنة</div>
+      <div class="bar-row"><div class="bar-label">نسبة السكان</div><div class="bar-track"><div class="bar-fill hf" data-w="13" style="width:0%;background:var(--amber)">~13%</div></div></div>
+      <div class="bar-row"><div class="bar-label">التأثير السياسي</div><div class="bar-track"><div class="bar-fill hf" data-w="85" style="width:0%;background:var(--teal)">حاسم — مفتاح الائتلاف</div></div></div>
+      <div class="bar-row"><div class="bar-label">الخدمة العسكرية</div><div class="bar-track"><div class="bar-fill hf" data-w="2" style="width:0%;background:var(--aa-red)"></div></div></div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:14px;color:var(--text-s);font-family:'Noto Naskh Arabic',serif;line-height:1.8">
+        يشكل المتدينون اليهود "الحريديم" نحو 13 بالمئة من سكان إسرائيل البالغ عددهم قرابة 9.7 ملايين نسمة، ولا يخدمون في الجيش، ويقولون إنهم يكرّسون حياتهم لدراسة التوراة. ورغم أن القانون يُلزم كل إسرائيلي فوق 18 عامًا بالخدمة العسكرية، فإن استثناء الحريديم أثار جدلاً واسعًا خاصة مع خسائر الجيش في الحروب المتعددة.
+      </div>
+    </div>
+  </div>
+
+  <div class="source">
+    المصدر: تصريحات رئيس أركان الجيش الإسرائيلي إيال زامير — هيئة البث الإسرائيلية — وكالة الأناضول
+  </div>
+
+</div>
+
+<script>
+var tabs = document.querySelectorAll('.tab');
+tabs.forEach(function(t) {
+  t.addEventListener('click', function() {
+    var i = this.getAttribute('data-i');
+    tabs.forEach(function(b) { b.classList.remove('on'); });
+    document.querySelectorAll('.sec').forEach(function(s) { s.classList.remove('on'); });
+    this.classList.add('on');
+    var sec = document.getElementById('s' + i);
+    if (sec) { sec.classList.add('on'); runAnim(parseInt(i)); }
+  });
+});
+
+function animNum(el, target, sfx, dur) {
+  if (!el) return;
+  var t0 = performance.now();
+  function tick(now) {
+    var p = Math.min((now - t0) / dur, 1);
+    var e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * e).toLocaleString('en-US') + (sfx || '');
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function animBars(sel) {
+  document.querySelectorAll(sel).forEach(function(b) {
+    var w = b.getAttribute('data-w');
+    if (w) setTimeout(function() { b.style.width = w + '%'; }, 200);
+  });
+}
+
+var mapReady = false;
+function initMap() {
+  if (mapReady) return;
+  mapReady = true;
+  var map = L.map('map', {
+    center: [32, 40],
+    zoom: 6,
+    zoomControl: true,
+    attributionControl: false
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 18
+  }).addTo(map);
+
+  var fronts = [
+    { name: 'إيران', lat: 32.5, lng: 53, color: '#ED1C24', type: 'عمليات جوية — سلاح الجو', detail: 'يستخدم الجيش الإسرائيلي سلاح الجو في عدوانه على إيران ضمن ما أطلقت عليه تل أبيب اسم "زئير الأسد"', r: 22 },
+    { name: 'جنوب لبنان', lat: 33.25, lng: 35.5, color: '#FFB300', type: '4 فرق عسكرية + عمليات برية', detail: 'دفع الجيش 4 فرق عسكرية إلى جنوب لبنان مع اتساع العمليات العسكرية البرية', r: 16 },
+    { name: 'الضفة الغربية', lat: 32.0, lng: 35.3, color: '#00BFA5', type: 'قوات كبيرة + حماية مستوطنات', detail: 'انتشار واسع لحماية المستوطنات ومواجهة تصاعد عنف المستوطنين', r: 14 },
+    { name: 'قطاع غزة', lat: 31.4, lng: 34.4, color: '#B0BEC5', type: 'سيطرة على نحو نصف القطاع', detail: 'يسيطر الجيش على نحو نصف قطاع غزة مع استمرار العدوان منذ أكتوبر 2023', r: 14 }
+  ];
+
+  fronts.forEach(function(f) {
+    L.circleMarker([f.lat, f.lng], {
+      radius: f.r + 8, fillColor: f.color, color: f.color,
+      weight: 1, opacity: 0.2, fillOpacity: 0.08
+    }).addTo(map);
+
+    var m = L.circleMarker([f.lat, f.lng], {
+      radius: f.r, fillColor: f.color, color: f.color,
+      weight: 2, opacity: 0.9, fillOpacity: 0.35
+    }).addTo(map);
+
+    m.bindPopup(
+      '<div class="popup-name">' + f.name + '</div>' +
+      '<div class="popup-type">' + f.type + '</div>' +
+      '<div class="popup-detail">' + f.detail + '</div>',
+      { maxWidth: 260, autoPan: true }
+    );
+
+    m.bindTooltip(f.name, {
+      permanent: false, direction: 'top',
+      offset: [0, -f.r - 4],
+      className: 'loc-label'
+    });
+  });
+
+  L.marker([31.77, 35.23], {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="background:rgba(13,27,42,0.85);color:#fff;padding:3px 8px;border-radius:4px;font-size:12px;font-family:Noto Kufi Arabic;border:1px solid rgba(237,28,36,0.3);white-space:nowrap">إسرائيل</div>',
+      iconSize: [60, 20], iconAnchor: [30, 10]
+    })
+  }).addTo(map);
+
+  setTimeout(function() { map.invalidateSize(); }, 200);
+  setTimeout(function() { map.invalidateSize(); }, 500);
+  setTimeout(function() { map.invalidateSize(); }, 1500);
+}
+
+function runAnim(idx) {
+  if (idx === 0) {
+    animNum(document.getElementById('n1'), 100000, '+', 1800);
+    animNum(document.getElementById('n2'), 15000, '', 1600);
+    animNum(document.getElementById('n3'), 7, '', 800);
+  }
+  if (idx === 1) {
+    setTimeout(initMap, 100);
+    animBars('.bf');
+  }
+  if (idx === 3) animBars('.mf');
+  if (idx === 5) animBars('.hf');
+}
+
+runAnim(0);
+</script>
+
+</body>
+</html>
