@@ -520,6 +520,18 @@ body {
 .leaflet-tile-pane { filter: saturate(0.55) brightness(1.0); }
 .leaflet-container { font-family: 'Cairo', sans-serif; }
 
+/* Permanent tooltip labels */
+.lbl-mandab, .lbl-hormuz {
+  background: rgba(255,255,255,0.93) !important;
+  border: none !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18) !important;
+  padding: 3px 9px !important;
+  border-radius: 3px !important;
+  font-weight: 800 !important;
+  white-space: nowrap;
+}
+.lbl-mandab::before, .lbl-hormuz::before { display: none !important; }
+
 /* Custom popup */
 .leaflet-popup-content-wrapper {
   background: #152642 !important;
@@ -561,7 +573,7 @@ body {
     <div class="header-boxes">
       <div class="hbox">
         <div class="hb-title">الأزمة المتزامنة</div>
-        <div class="hb-val">منذ <span>2 مارس</span> قيّدت إيران الملاحة في هرمز. المندب التهديد القادم.</div>
+        <div class="hb-val">منذ <span>2 مارس</span> قيّدت إيران الملاحة في هرمز. المندب <br /> التهديد القادم.</div>
       </div>
       <div class="hbox">
         <div class="hb-title">المعابر الاستراتيجية الثلاثة</div>
@@ -804,8 +816,8 @@ body {
 <script>
 // ── MAP INIT ──
 const map = L.map('map', {
-  center: [17, 46],
-  zoom: 5,
+  center: [20, 50],
+  zoom: 4,
   zoomControl: false,
   attributionControl: false
 });
@@ -902,6 +914,10 @@ function createPulseIcon(color) {
 
 // Bab el-Mandeb
 const mandabMarker = L.marker([12.6, 43.4], { icon: createPulseIcon('#E05C1A') }).addTo(map);
+mandabMarker.bindTooltip(
+  `<span style="font-family:Cairo,sans-serif;font-size:11px;font-weight:800;color:#E05C1A;direction:rtl;">باب المندب</span>`,
+  { permanent: true, direction: 'right', offset: [18, 30], className: 'lbl-mandab' }
+);
 mandabMarker.bindPopup(`
   <div class="popup-inner">
     <div class="popup-title">🔴 مضيق باب المندب</div>
@@ -915,6 +931,10 @@ mandabMarker.bindPopup(`
 
 // Hormuz (restricted)
 const hormuzMarker = L.marker([26.6, 56.4], { icon: createPulseIcon('#BC2C2C') }).addTo(map);
+hormuzMarker.bindTooltip(
+  `<span style="font-family:Cairo,sans-serif;font-size:11px;font-weight:800;color:#BC2C2C;direction:rtl;">هرمز (مقيّد)</span>`,
+  { permanent: true, direction: 'right', offset: [10, 0], className: 'lbl-hormuz' }
+);
 hormuzMarker.bindPopup(`
   <div class="popup-inner">
     <div class="popup-title">🔴 مضيق هرمز</div>
@@ -962,8 +982,6 @@ function textLabel(txt, color, bg) {
   });
 }
 
-L.marker([12.3, 44.6], { icon: textLabel('باب المندب ⬅', '#E05C1A', 'rgba(255,255,255,0.92)'), interactive:false }).addTo(map);
-L.marker([26.0, 55.8], { icon: textLabel('هرمز ⬅', '#BC2C2C', 'rgba(255,255,255,0.92)'), interactive:false }).addTo(map);
 L.marker([24.7, 37.2], { icon: textLabel('البحر الأحمر', '#1A5E8A', 'transparent'), interactive:false }).addTo(map);
 L.marker([13.0, 51.0], { icon: textLabel('خليج عدن', '#1A5E8A', 'transparent'), interactive:false }).addTo(map);
 L.marker([30.0, 32.8], { icon: textLabel('السويس', '#1A7A45', 'rgba(255,255,255,0.88)'), interactive:false }).addTo(map);
