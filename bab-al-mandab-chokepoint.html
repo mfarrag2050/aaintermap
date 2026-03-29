@@ -45,8 +45,15 @@ body {
   background: #DDD9D0;
   display: flex;
   justify-content: center;
-  padding: 30px 20px;
+  padding: 0;
+  margin: 0;
   min-height: 100vh;
+}
+
+.cms-spacer {
+  height: 180px;
+  background: #DDD9D0;
+  width: 900px;
 }
 
 .card {
@@ -587,6 +594,8 @@ body {
 </style>
 </head>
 <body>
+<div style="display:flex; flex-direction:column; align-items:center; background:#DDD9D0;">
+<div class="cms-spacer"></div>
 <div class="card">
 
   <!-- ── HEADER ── -->
@@ -1022,6 +1031,10 @@ setTimeout(()=>map.invalidateSize(), 200);
 setTimeout(()=>map.invalidateSize(), 600);
 setTimeout(()=>map.invalidateSize(), 1500);
 </script>
+
+</div><!-- /card -->
+<div style="height:800px; width:900px; background:#DDD9D0;"></div>
+</div><!-- /wrapper -->
 
 </body>
 </html>
