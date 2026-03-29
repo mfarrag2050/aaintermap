@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مضيق باب المندب – الأناضول</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --orange: #E05C1A;
+  --navy:   #152642;
+  --red:    #BC2C2C;
+  --gold:   #C8900A;
+  --cream:  #FAF8F4;
+  --light:  #F2EFE9;
+  --border: #DDD8CE;
+  --text:   #1E1E1E;
+  --muted:  #666;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: #DDD9D0;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+  min-height: 100vh;
+}
+
+.card {
+  width: 900px;
+  background: white;
+  border-top: 7px solid var(--orange);
+  box-shadow: 0 8px 50px rgba(0,0,0,0.22);
+}
+
+/* ─────────── HEADER ─────────── */
+.header {
+  background: white;
+  padding: 24px 28px 20px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  border-bottom: 2px solid var(--light);
+}
+
+.header-title { flex: 1; }
+
+.header-title .badge {
+  display: inline-block;
+  background: var(--orange);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.header-title h1 {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.4;
+}
+
+.header-title h1 em {
+  font-style: normal;
+  color: var(--orange);
+}
+
+.header-title h1 strong {
+  color: var(--red);
+}
+
+.header-title .subtitle {
+  margin-top: 9px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.65;
+  border-right: 3px solid var(--border);
+  padding-right: 10px;
+  max-width: 420px;
+}
+
+.header-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 200px;
+  max-width: 200px;
+}
+
+.hbox {
+  border-right: 4px solid var(--orange);
+  background: var(--light);
+  padding: 10px 12px;
+}
+
+.hbox .hb-title {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.hbox .hb-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.4;
+}
+
+.hbox .hb-val span { color: var(--orange); }
+
+/* ─────────── NUMBERS BAR ─────────── */
+.numbers-bar {
+  background: var(--navy);
+  display: flex;
+  align-items: stretch;
+}
+
+.nb-item {
+  flex: 1;
+  padding: 14px 8px 12px;
+  text-align: center;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+.nb-item:last-child { border-left: none; }
+
+.nb-num {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 21px;
+  font-weight: 900;
+  color: #F0A030;
+  line-height: 1;
+}
+
+.nb-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+/* ─────────── BODY TWO COLUMNS ─────────── */
+.body-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.col {
+  padding: 20px 22px;
+}
+
+.col:first-child {
+  border-left: 1px solid var(--border);
+}
+
+.col-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.col-label .cl-bar {
+  width: 4px;
+  height: 18px;
+  background: var(--orange);
+  flex-shrink: 0;
+}
+
+.col-label span {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* PIE CHARTS */
+.pies-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.pie-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--light);
+  padding: 10px;
+}
+
+.pie-chart {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+}
+
+.pie-chart .pie-ring {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  /* set via inline style */
+}
+
+.pie-chart .pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.pie-info .pi-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.pie-info .pi-sub {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+/* STATS BOXES */
+.stats-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sbox {
+  background: var(--cream);
+  border-bottom: 3px solid var(--orange);
+  padding: 11px 12px;
+}
+
+.sbox.blue  { border-bottom-color: #1A5E8A; }
+.sbox.red   { border-bottom-color: var(--red); }
+.sbox.green { border-bottom-color: #1A7A45; }
+
+.sbox .sb-num {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+}
+.sbox.blue .sb-num  { color: #1A5E8A; }
+.sbox.red .sb-num   { color: var(--red); }
+.sbox.green .sb-num { color: #1A7A45; }
+
+.sbox .sb-unit {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-top: 1px;
+}
+
+.sbox .sb-desc {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+
+.tl-item {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+
+.tl-item::after {
+  content: '';
+  position: absolute;
+  right: 52px;
+  top: 26px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--border);
+}
+.tl-item:last-child::after { display: none; }
+
+.tl-date-col {
+  width: 56px;
+  flex-shrink: 0;
+  padding-top: 2px;
+  position: relative;
+}
+
+.tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orange);
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--orange);
+  position: absolute;
+  left: -5px;
+  top: 6px;
+}
+
+.tl-date-col .tl-date {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--orange);
+  text-align: left;
+  padding-left: 14px;
+  line-height: 1.3;
+}
+
+.tl-content {
+  flex: 1;
+  border-right: 2px solid var(--border);
+  padding: 6px 12px 18px 0;
+  margin-right: 8px;
+}
+
+.tl-content .tl-who {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+
+.tl-content .tl-text {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.tl-content .tl-src {
+  font-size: 9.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ─────────── MAP ─────────── */
+.map-section { position: relative; }
+
+#map {
+  height: 360px;
+  width: 100%;
+  direction: ltr;
+}
+
+.map-overlay-title {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 800;
+  background: rgba(21,38,66,0.92);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  font-family: 'Cairo', sans-serif;
+  pointer-events: none;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 30px;
+  right: 14px;
+  z-index: 800;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  color: var(--navy);
+  min-width: 170px;
+  direction: rtl;
+}
+
+.map-legend .leg-title {
+  font-weight: 800;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  color: var(--navy);
+}
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.leg-line {
+  width: 28px;
+  height: 3px;
+  flex-shrink: 0;
+}
+
+.leg-dot-r { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─────────── QUOTES ─────────── */
+.quotes-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 2px solid var(--light);
+}
+
+.qbox {
+  padding: 16px 16px;
+  border-left: 1px solid var(--border);
+}
+.qbox:last-child { border-left: none; }
+
+.qbox .qwho {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--orange);
+  margin-bottom: 2px;
+}
+
+.qbox .qrole {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.qbox .qtext {
+  font-size: 11.5px;
+  color: var(--text);
+  line-height: 1.6;
+  border-right: 3px solid var(--light);
+  padding-right: 10px;
+  position: relative;
+}
+
+.qbox .qtext::before {
+  content: '\201C';
+  position: absolute;
+  right: -2px;
+  top: -4px;
+  font-size: 26px;
+  color: var(--orange);
+  opacity: 0.4;
+  font-family: serif;
+  line-height: 1;
+}
+
+/* ─────────── FOOTER ─────────── */
+.footer {
+  background: var(--navy);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-byline {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.6);
+}
+
+.footer-byline strong { color: white; }
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.5px;
+}
+
+.logo-text {
+  text-align: right;
+  line-height: 1.2;
+}
+
+.logo-text .l1 {
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+}
+
+.logo-text .l2 {
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* Leaflet override */
+.leaflet-tile-pane { filter: saturate(0.55) brightness(1.0); }
+.leaflet-container { font-family: 'Cairo', sans-serif; }
+
+/* Custom popup */
+.leaflet-popup-content-wrapper {
+  background: #152642 !important;
+  color: white !important;
+  border-radius: 4px !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 180px;
+}
+.leaflet-popup-tip { background: #152642 !important; }
+.leaflet-popup-close-button { color: rgba(255,255,255,0.6) !important; }
+
+.popup-inner { padding: 12px 14px; direction: rtl; }
+.popup-title { font-size: 13px; font-weight: 800; color: #F0A030; margin-bottom: 6px; }
+.popup-row { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.85); margin-bottom: 3px; }
+.popup-row span:first-child { color: rgba(255,255,255,0.55); }
+
+/* Pulse animation */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-title">
+      <div class="badge">تقرير استراتيجي · 29 مارس 2026</div>
+      <h1>مضيق <em>"باب المندب"</em> — رئة ثانية للاقتصاد العالمي <strong>تتهيأ للاختناق والتصعيد</strong></h1>
+      <p class="subtitle">بعد تقييد إيران الملاحة في مضيق هرمز، تتجه الأنظار إلى باب المندب الذي يُعدّ الشريان الثاني لإمدادات الطاقة والغذاء العالمية، وسط تصاعد التهديدات الإيرانية والحوثية باستهدافه في أي لحظة.</p>
+    </div>
+    <div class="header-boxes">
+      <div class="hbox">
+        <div class="hb-title">الأزمة المتزامنة</div>
+        <div class="hb-val">منذ <span>2 مارس</span> قيّدت إيران الملاحة في هرمز. المندب التهديد القادم.</div>
+      </div>
+      <div class="hbox">
+        <div class="hb-title">المعابر الاستراتيجية الثلاثة</div>
+        <div class="hb-val">هرمز ← باب المندب ← <span>قناة السويس</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NUMBERS BAR ── -->
+  <div class="numbers-bar">
+    <div class="nb-item">
+      <div class="nb-num">21,000+</div>
+      <div class="nb-label">سفينة سنوياً<br>(57 يومياً)</div>
+    </div>
+    <div class="nb-item">
+      <div class="nb-num">700 مليار $</div>
+      <div class="nb-label">تجارة عابرة<br>سنوياً</div>
+    </div>
+    <div class="nb-item">
+      <div class="nb-num">7–10 م.</div>
+      <div class="nb-label">برميل نفط<br>يومياً</div>
+    </div>
+    <div class="nb-item">
+      <div class="nb-num">15%</div>
+      <div class="nb-label">من التجارة<br>الدولية</div>
+    </div>
+    <div class="nb-item">
+      <div class="nb-num">30 كم</div>
+      <div class="nb-label">عرض<br>المضيق</div>
+    </div>
+  </div>
+
+  <!-- ── TWO COLUMNS ── -->
+  <div class="body-cols">
+
+    <!-- RIGHT: PIE CHARTS + STATS -->
+    <div class="col">
+      <div class="col-label">
+        <div class="cl-bar"></div>
+        <span>أولاً: الأهمية الاستراتيجية</span>
+      </div>
+
+      <div class="pies-grid">
+
+        <div class="pie-item">
+          <div class="pie-chart">
+            <div class="pie-ring" style="background: conic-gradient(#E05C1A 0% 46%, #E8E4DC 46%);"></div>
+            <div class="pie-center" style="color:#E05C1A;">46%</div>
+          </div>
+          <div class="pie-info">
+            <div class="pi-label">حصة المنطقة من صادرات اليوريا العالمية</div>
+            <div class="pi-sub">معظمها يعبر المضيق</div>
+          </div>
+        </div>
+
+        <div class="pie-item">
+          <div class="pie-chart">
+            <div class="pie-ring" style="background: conic-gradient(#1A5E8A 0% 38%, #E8E4DC 38%);"></div>
+            <div class="pie-center" style="color:#1A5E8A;">38%</div>
+          </div>
+          <div class="pie-info">
+            <div class="pi-label">حصتها من الأسمدة الآزوتية العالمية</div>
+            <div class="pi-sub">قطر والسعودية والإمارات</div>
+          </div>
+        </div>
+
+        <div class="pie-item">
+          <div class="pie-chart">
+            <div class="pie-ring" style="background: conic-gradient(#1A7A45 0% 25%, #E8E4DC 25%);"></div>
+            <div class="pie-center" style="color:#1A7A45;">25%</div>
+          </div>
+          <div class="pie-info">
+            <div class="pi-label">حاجة أوروبا من الغاز المسال</div>
+            <div class="pi-sub">تعبر هذا المضيق وقناة السويس</div>
+          </div>
+        </div>
+
+        <div class="pie-item">
+          <div class="pie-chart">
+            <div class="pie-ring" style="background: conic-gradient(#C8900A 0% 12%, #E8E4DC 12%);"></div>
+            <div class="pie-center" style="color:#C8900A;">12%</div>
+          </div>
+          <div class="pie-info">
+            <div class="pi-label">نقطة عبور للتجارة نحو أوروبا وآسيا</div>
+            <div class="pi-sub">من التدفق التجاري الدولي</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="stats-boxes">
+        <div class="sbox">
+          <div class="sb-num">300 م.$</div>
+          <div class="sb-unit">صادرات الصين سنوياً</div>
+          <div class="sb-desc">عبر البحر الأحمر — الأكثر تضرراً</div>
+        </div>
+        <div class="sbox red">
+          <div class="sb-num">10 م.$</div>
+          <div class="sb-unit">خسائر قناة السويس</div>
+          <div class="sb-desc">خلال عامَي الحرب على غزة</div>
+        </div>
+        <div class="sbox blue">
+          <div class="sb-num">6,000</div>
+          <div class="sb-unit">ميل بحري إضافي</div>
+          <div class="sb-desc">عبر رأس الرجاء الصالح بديلاً</div>
+        </div>
+        <div class="sbox green">
+          <div class="sb-num">14%</div>
+          <div class="sb-unit">قطر وحدها</div>
+          <div class="sb-desc">تلبي 14% من الطلب العالمي على اليوريا</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEFT: TIMELINE -->
+    <div class="col">
+      <div class="col-label">
+        <div class="cl-bar"></div>
+        <span>ثانياً: تصاعد التهديدات</span>
+      </div>
+
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-date-col">
+            <div class="tl-dot"></div>
+            <div class="tl-date">21 مارس<br>2026</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-who">🇮🇷 مسؤول عسكري إيراني</div>
+            <div class="tl-text">أي هجوم على جزيرة خارك سيجعل البحر الأحمر ومضيق باب المندب "هدفاً للمقاومة".</div>
+            <div class="tl-src">وكالة تسنيم الإيرانية</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date-col">
+            <div class="tl-dot"></div>
+            <div class="tl-date">25 مارس<br>2026</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-who">🇮🇷 مصدر عسكري إيراني</div>
+            <div class="tl-text">"إيران لديها القدرة والإرادة لإيجاد تهديد موثوق تجاه باب المندب" إن احتُلّت أراضيها.</div>
+            <div class="tl-src">وكالة تسنيم الإيرانية</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date-col">
+            <div class="tl-dot" style="background:var(--red); box-shadow: 0 0 0 2px var(--red);"></div>
+            <div class="tl-date" style="color:var(--red);">28 مارس<br>2026</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-who">🇾🇪 يحيى سريع — الحوثيون</div>
+            <div class="tl-text">"أيدينا على الزناد للتدخل العسكري المباشر" إن استُخدم البحر الأحمر لتنفيذ عمليات ضد إيران.</div>
+            <div class="tl-src">بيان متلفز رسمي</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date-col">
+            <div class="tl-dot" style="background:#777; box-shadow:0 0 0 2px #777;"></div>
+            <div class="tl-date" style="color:#777;">2023<br>سياق</div>
+          </div>
+          <div class="tl-content">
+            <div class="tl-who">🚢 تداعيات سابقة</div>
+            <div class="tl-text">الحوثيون استهدفوا سفن شحن دولية تضامناً مع غزة → Maersk وCMA CGM توقفتا عن عبور المضيق.</div>
+            <div class="tl-src">خسائر موثقة لقناة السويس</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAP ── -->
+  <div class="map-section">
+    <div id="map"></div>
+    <div class="map-overlay-title">مضيق باب المندب وخطوط الشحن الدولية</div>
+    <div class="map-legend">
+      <div class="leg-title">مفتاح الخريطة</div>
+      <div class="leg-item">
+        <div class="leg-dot-r" style="background:#E05C1A;"></div>
+        <span>مضيق باب المندب</span>
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot-r" style="background:#BC2C2C;"></div>
+        <span>مضيق هرمز (مقيّد)</span>
+      </div>
+      <div class="leg-item">
+        <div class="leg-line" style="background:#1A5E8A;"></div>
+        <span>خط الشحن الرئيسي</span>
+      </div>
+      <div class="leg-item">
+        <div class="leg-line" style="background:#C8900A; border-top: 3px dashed #C8900A; height:0;"></div>
+        <span>الطريق البديل – رأس الرجاء</span>
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot-r" style="background:#E05C1A; opacity:0.5; width:10px;height:10px;"></div>
+        <span>تهديدات الحوثيين</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUOTES ── -->
+  <div class="quotes-row">
+    <div class="qbox">
+      <div class="qwho">نصرالدين بوغاشيش</div>
+      <div class="qrole">خبير سلاسل الإمداد – الجزائر</div>
+      <div class="qtext">الوضع يتكرر بأكثر حدة؛ سابقاً المشكلة تقتصر على باب المندب، واليوم تشمل هرمز بالتوازي مما يضاعف أزمة الطاقة والغذاء عالمياً.</div>
+    </div>
+    <div class="qbox">
+      <div class="qwho">عبد الستار الشميري</div>
+      <div class="qrole">مركز جهود للدراسات – اليمن</div>
+      <div class="qtext">ربما تكون الصين أول الخاسرين، كونها أكثر من يمرر واردات وصادرات عبر البحر الأحمر بـ300 مليار دولار سنوياً.</div>
+    </div>
+    <div class="qbox">
+      <div class="qwho">هشام جابر</div>
+      <div class="qrole">خبير عسكري واستراتيجي – لبنان</div>
+      <div class="qtext">الحوثيون يستطيعون إغلاق المضيق في أي ساعة. عندئذٍ يصبح البحر الأحمر منطقة عمليات عسكرية وتزداد الأزمة العالمية.</div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="footer">
+    <div class="footer-byline">
+      تقرير: <strong>حسين القباني</strong> · وكالة الأناضول
+    </div>
+    <div class="footer-logo">
+      <div class="logo-text">
+        <div class="l1">وكالة الأناضول</div>
+        <div class="l2">29.03.2026</div>
+      </div>
+      <div class="logo-circle">AA</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── MAP INIT ──
+const map = L.map('map', {
+  center: [17, 46],
+  zoom: 5,
+  zoomControl: false,
+  attributionControl: false
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  maxZoom: 18
+}).addTo(map);
+
+L.control.zoom({ position: 'bottomleft' }).addTo(map);
+L.control.attribution({ position: 'bottomright', prefix: '© OpenStreetMap © CARTO' }).addTo(map);
+
+// ── SHIPPING ROUTE (main – through Bab el-Mandeb) ──
+const mainRoute = [
+  [31.2, 32.3],  // Suez Canal
+  [28.0, 33.5],
+  [24.5, 36.5],
+  [20.0, 38.8],
+  [16.0, 41.5],
+  [12.6, 43.4],  // Bab el-Mandeb
+  [11.5, 45.2],
+  [10.5, 48.5],
+  [ 8.5, 54.0],
+  [ 6.5, 58.5],
+  [ 4.0, 63.0]
+];
+
+L.polyline(mainRoute, {
+  color: '#1A5E8A',
+  weight: 3,
+  opacity: 0.85,
+  dashArray: null
+}).addTo(map);
+
+// ── ALTERNATIVE ROUTE (Cape of Good Hope) ──
+const altRoute = [
+  [12.6, 43.4],  // Bab el-Mandeb start
+  [ 8.0, 43.0],
+  [ 3.0, 41.0],
+  [-5.0, 40.5],
+  [-15.0, 38.5],
+  [-25.0, 35.0],
+  [-33.5, 26.5], // Cape of Good Hope
+  [-35.0, 20.0],
+];
+
+L.polyline(altRoute, {
+  color: '#C8900A',
+  weight: 2.5,
+  opacity: 0.75,
+  dashArray: '8, 6'
+}).addTo(map);
+
+// ── BAB EL-MANDEB MARKER (animated pulse) ──
+function createPulseIcon(color) {
+  const pulseStyle = `
+    position:relative; width:30px; height:30px;
+  `;
+  const inner = `
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:14px; height:14px;
+    border-radius:50%; background:${color};
+    box-shadow: 0 0 0 0 ${color};
+    animation: pulse 2s ease-out infinite;
+  `;
+  const ring = `
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:30px; height:30px;
+    border-radius:50%;
+    border:2px solid ${color};
+    opacity:0;
+    animation: ring 2s ease-out infinite;
+  `;
+  const html = `
+    <style>
+      @keyframes pulse {
+        0%   { box-shadow: 0 0 0 0 ${color}88; }
+        70%  { box-shadow: 0 0 0 14px ${color}00; }
+        100% { box-shadow: 0 0 0 0 ${color}00; }
+      }
+      @keyframes ring {
+        0%   { transform:translate(-50%,-50%) scale(0.5); opacity:0.8; }
+        100% { transform:translate(-50%,-50%) scale(1.5); opacity:0; }
+      }
+    </style>
+    <div style="${pulseStyle}">
+      <div style="${ring}"></div>
+      <div style="${inner}"></div>
+    </div>
+  `;
+  return L.divIcon({ html, className:'', iconSize:[30,30], iconAnchor:[15,15] });
+}
+
+// Bab el-Mandeb
+const mandabMarker = L.marker([12.6, 43.4], { icon: createPulseIcon('#E05C1A') }).addTo(map);
+mandabMarker.bindPopup(`
+  <div class="popup-inner">
+    <div class="popup-title">🔴 مضيق باب المندب</div>
+    <div class="popup-row"><span>العرض</span><span>~30 كم</span></div>
+    <div class="popup-row"><span>النفط اليومي</span><span>7–10 م. برميل</span></div>
+    <div class="popup-row"><span>السفن سنوياً</span><span>21,000+</span></div>
+    <div class="popup-row"><span>التجارة سنوياً</span><span>700 مليار $</span></div>
+    <div class="popup-row"><span>الحالة</span><span style="color:#F0A030">تهديد متصاعد</span></div>
+  </div>
+`, { maxWidth: 220, direction: 'top' });
+
+// Hormuz (restricted)
+const hormuzMarker = L.marker([26.6, 56.4], { icon: createPulseIcon('#BC2C2C') }).addTo(map);
+hormuzMarker.bindPopup(`
+  <div class="popup-inner">
+    <div class="popup-title">🔴 مضيق هرمز</div>
+    <div class="popup-row"><span>النفط اليومي</span><span>~20 م. برميل</span></div>
+    <div class="popup-row"><span>الحالة</span><span style="color:#F04040">مقيّد منذ 2 مارس 2026</span></div>
+  </div>
+`, { maxWidth: 200, direction: 'top' });
+
+// Suez Canal
+const suezMarker = L.circleMarker([30.5, 32.3], {
+  radius: 7,
+  fillColor: '#1A7A45',
+  color: '#1A7A45',
+  weight: 2,
+  opacity: 1,
+  fillOpacity: 0.8
+}).addTo(map);
+suezMarker.bindTooltip('قناة السويس', { direction:'top', permanent:false, className:'' });
+
+// Houthi threat zone (Yemen)
+const houthiZone = L.circleMarker([15.3, 44.2], {
+  radius: 28,
+  fillColor: '#E05C1A',
+  color: '#E05C1A',
+  weight: 1,
+  opacity: 0.25,
+  fillOpacity: 0.08
+}).addTo(map);
+
+L.circleMarker([15.3, 44.2], {
+  radius: 7,
+  fillColor: '#E05C1A',
+  color: '#E05C1A',
+  weight: 2,
+  opacity: 0.9,
+  fillOpacity: 0.6
+}).addTo(map).bindTooltip('منطقة التهديد الحوثي', { direction:'top', permanent:false });
+
+// ── LABELS via DivIcon ──
+function textLabel(txt, color, bg) {
+  return L.divIcon({
+    html: `<div style="background:${bg||'rgba(255,255,255,0.88)'};color:${color||'#152642'};font-family:Cairo,sans-serif;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap;direction:rtl;">${txt}</div>`,
+    className: '',
+    iconAnchor: [0, 10]
+  });
+}
+
+L.marker([12.3, 44.6], { icon: textLabel('باب المندب ⬅', '#E05C1A', 'rgba(255,255,255,0.92)'), interactive:false }).addTo(map);
+L.marker([26.0, 55.8], { icon: textLabel('هرمز ⬅', '#BC2C2C', 'rgba(255,255,255,0.92)'), interactive:false }).addTo(map);
+L.marker([24.7, 37.2], { icon: textLabel('البحر الأحمر', '#1A5E8A', 'transparent'), interactive:false }).addTo(map);
+L.marker([13.0, 51.0], { icon: textLabel('خليج عدن', '#1A5E8A', 'transparent'), interactive:false }).addTo(map);
+L.marker([30.0, 32.8], { icon: textLabel('السويس', '#1A7A45', 'rgba(255,255,255,0.88)'), interactive:false }).addTo(map);
+L.marker([-15.0, 40.0], { icon: textLabel('الطريق البديل (+6,000 ميل)', '#C8900A', 'rgba(255,255,255,0.92)'), interactive:false }).addTo(map);
+
+// invalidateSize multiple times
+setTimeout(()=>map.invalidateSize(), 200);
+setTimeout(()=>map.invalidateSize(), 600);
+setTimeout(()=>map.invalidateSize(), 1500);
+</script>
+
+</body>
+</html>
